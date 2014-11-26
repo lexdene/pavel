@@ -97,11 +97,14 @@ class Parser:
 
     def p_three_items_expression(self, p):
         '''
-            expression : expression operator expression
+            expression : expression '+' expression
+                       | expression '-' expression
+                       | expression '*' expression
+                       | expression '/' expression
         '''
         p[0] = (
             'expression',
-            p[2],
+            ('operator', p[2]),
             p[1],
             p[3]
         )
@@ -111,15 +114,6 @@ class Parser:
             number : NUMBER
         '''
         p[0] = ('number', p[1])
-
-    def p_operator(self, p):
-        '''
-            operator : '+'
-                     | '-'
-                     | '*'
-                     | '/'
-        '''
-        p[0] = ('operator', p[1])
 
     def p_keyword(self, p):
         '''

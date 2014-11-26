@@ -16,4 +16,4 @@ class CalcTestCase(unittest.TestCase):
 class VariableTestCase(unittest.TestCase):
     def testVariable(self):
         result = test_helper.execute_file('variable')
-        self.assertEqual(result, 38)
+        self.assertEqual(result, 22)
