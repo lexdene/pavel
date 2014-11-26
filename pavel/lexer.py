@@ -20,7 +20,7 @@ class Lexer:
     def token(self):
         return self.lexer.token()
 
-    literals = '+-*/'
+    literals = '+-*/='
     tokens = (
         'NUMBER',
         'KEYWORD',

@@ -23,6 +23,7 @@ class Number(LangStructBase):
     def execute(self, env):
         return int(self._parse_tree[1])
 
+
 class Operator(LangStructBase):
     OPERATOR_NAME_MAP = {
         '+': 'add',
@@ -30,11 +31,13 @@ class Operator(LangStructBase):
         '*': 'multiply',
         '/': 'divide',
     }
+
     def __new__(cls, parse_tree):
         operator_name = cls.OPERATOR_NAME_MAP.get(parse_tree[1], parse_tree[1])
         operator_class_name = 'Operator' + operator_name.title()
         operator_class = globals()[operator_class_name]
         return operator_class(parse_tree)
+
 
 class OperatorAdd(LangStructBase):
     def execute(self, env, arg1, arg2):
@@ -44,6 +47,26 @@ class OperatorAdd(LangStructBase):
 class OperatorMultiply(LangStructBase):
     def execute(self, env, arg1, arg2):
         return create(arg1).execute(env) * create(arg2).execute(env)
+
+
+class Assign(LangStructBase):
+    def execute(self, env):
+        expression_item = self._parse_tree[2]
+        value = create(expression_item).execute(env)
+
+        keyword_item = self._parse_tree[1]
+        block = env.current_block()
+        block.set_variable(keyword_item[1], value)
+
+        return value
+
+
+class Keyword(LangStructBase):
+    def execute(self, env):
+        variable_name = self._parse_tree[1]
+
+        block = env.current_block()
+        return block.get_variable(variable_name)
 
 
 def create(parse_tree):

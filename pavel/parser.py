@@ -47,6 +47,9 @@ class Parser:
         '''
         p[0] = p[1]
 
+    def p_error(self, p):
+        raise ValueError(p)
+
     def p_multi_blocks(self, p):
         '''
             multi_blocks : empty
@@ -87,6 +90,8 @@ class Parser:
     def p_one_item_expression(self, p):
         '''
             expression : number
+                       | assign
+                       | keyword
         '''
         p[0] = p[1]
 
@@ -115,3 +120,19 @@ class Parser:
                      | '/'
         '''
         p[0] = ('operator', p[1])
+
+    def p_keyword(self, p):
+        '''
+            keyword : KEYWORD
+        '''
+        p[0] = ('keyword', p[1])
+
+    def p_simple_assign(self, p):
+        '''
+            assign : keyword '=' expression
+        '''
+        p[0] = (
+            'assign',
+            p[1],
+            p[3]
+        )
