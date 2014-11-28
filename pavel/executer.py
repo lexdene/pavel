@@ -11,4 +11,4 @@ def execute_code(source, **options):
     env = runtime_env.Env()
     result = lang.execute(env)
 
-    return result
+    return result, env

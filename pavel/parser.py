@@ -10,7 +10,7 @@ class Parser:
     def parse(self, source):
         # self._debug_parse_tokens(source)
 
-        parser = yacc.yacc(module=self)
+        parser = yacc.yacc(module=self, debug=False, write_tables=False)
         return parser.parse(
             source,
             lexer=self._create_lexer()
@@ -18,6 +18,7 @@ class Parser:
 
     def _debug_parse_tokens(self, source):
         _lexer = self._create_lexer()
+        print(_lexer.tokens)
         print(' ==== debug begin ==== ')
 
         print(source)
@@ -37,6 +38,7 @@ class Parser:
     tokens = lexer.Lexer.tokens
 
     precedence = (
+        ('left', 'GT', 'LT', 'GTE', 'LTE'),
         ('left', '+', '-'),
         ('left', '*', '/'),
     )
@@ -83,14 +85,20 @@ class Parser:
 
     def p_block(self, p):
         '''
-            block : expression
+            block : line
+                  | if_struct
+        '''
+        p[0] = p[1]
+
+    def p_line(self, p):
+        '''
+            line : expression NEWLINE
         '''
         p[0] = p[1]
 
     def p_one_item_expression(self, p):
         '''
             expression : number
-                       | assign
                        | keyword
         '''
         p[0] = p[1]
@@ -101,6 +109,12 @@ class Parser:
                        | expression '-' expression
                        | expression '*' expression
                        | expression '/' expression
+                       | expression GT expression
+                       | expression LT expression
+                       | expression GTE expression
+                       | expression LTE expression
+                       | expression EQUAL expression
+                       | keyword ASSIGN expression
         '''
         p[0] = (
             'expression',
@@ -121,12 +135,46 @@ class Parser:
         '''
         p[0] = ('keyword', p[1])
 
-    def p_simple_assign(self, p):
+    def p_simple_if(self, p):
         '''
-            assign : keyword '=' expression
+            if_struct : IF expression INDENT multi_blocks OUTDENT
         '''
         p[0] = (
-            'assign',
-            p[1],
-            p[3]
+            'if_struct',
+            p[2],
+            p[4],
+            None,
+        )
+
+    def p_if_with_else(self, p):
+        '''
+            if_struct : IF expression INDENT multi_blocks OUTDENT ELSE INDENT multi_blocks OUTDENT
+        '''
+        p[0] = (
+            'if_struct',
+            p[2],
+            p[4],
+            p[8],
+        )
+
+    def p_if_with_block(self, p):
+        '''
+            if_struct : IF INDENT multi_blocks OUTDENT THEN INDENT multi_blocks OUTDENT
+        '''
+        p[0] = (
+            'if_struct',
+            p[3],
+            p[7],
+            None
+        )
+
+    def p_if_with_block_and_else(self, p):
+        '''
+            if_struct : IF INDENT multi_blocks OUTDENT THEN INDENT multi_blocks OUTDENT ELSE INDENT multi_blocks OUTDENT
+        '''
+        p[0] = (
+            'if_struct',
+            p[3],
+            p[7],
+            p[11],
         )

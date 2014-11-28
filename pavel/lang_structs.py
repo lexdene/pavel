@@ -30,6 +30,10 @@ class Operator(LangStructBase):
         '-': 'subtract',
         '*': 'multiply',
         '/': 'divide',
+        '==': 'equal',
+        '<': 'less',
+        '>': 'more',
+        '=': 'assign',
     }
 
     def __new__(cls, parse_tree):
@@ -49,12 +53,25 @@ class OperatorMultiply(LangStructBase):
         return create(arg1).execute(env) * create(arg2).execute(env)
 
 
-class Assign(LangStructBase):
-    def execute(self, env):
-        expression_item = self._parse_tree[2]
-        value = create(expression_item).execute(env)
+class OperatorEqual(LangStructBase):
+    def execute(self, env, arg1, arg2):
+        return create(arg1).execute(env) == create(arg2).execute(env)
 
-        keyword_item = self._parse_tree[1]
+
+class OperatorLess(LangStructBase):
+    def execute(self, env, arg1, arg2):
+        return create(arg1).execute(env) < create(arg2).execute(env)
+
+
+class OperatorMore(LangStructBase):
+    def execute(self, env, arg1, arg2):
+        return create(arg1).execute(env) > create(arg2).execute(env)
+
+
+class OperatorAssign(LangStructBase):
+    def execute(self, env, keyword_item, value_item):
+        value = create(value_item).execute(env)
+
         block = env.current_block()
         block.set_variable(keyword_item[1], value)
 
@@ -67,6 +84,19 @@ class Keyword(LangStructBase):
 
         block = env.current_block()
         return block.get_variable(variable_name)
+
+
+class IfStruct(LangStructBase):
+    def execute(self, env):
+        condition = self._parse_tree[1]
+        then_block = self._parse_tree[2]
+        else_block = self._parse_tree[3]
+
+        if create(condition).execute(env):
+            return create(then_block).execute(env)
+        else:
+            if else_block:
+                return create(else_block).execute(env)
 
 
 def create(parse_tree):

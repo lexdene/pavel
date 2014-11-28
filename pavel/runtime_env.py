@@ -12,6 +12,9 @@ class Block:
     def get_variable(self, name):
         return self.name_map[name]
 
+    def contains_variable(self, name):
+        return name in self.name_map
+
 
 class Env:
     def __init__(self):
