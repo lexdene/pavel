@@ -34,6 +34,7 @@ class Lexer:
         'if',
         'then',
         'else',
+        'while',
     )
 
     tokens = (
@@ -58,13 +59,13 @@ class Lexer:
 
     t_NUMBER = r'[0-9]+[a-z]?'
 
-    t_ASSIGN = r'='
-
     t_GT = r'>'
     t_LT = r'<'
     t_GTE = r'>='
     t_LTE = r'<='
     t_EQUAL = r'=='
+
+    t_ASSIGN = r'[\*\/\+\-]=|=(?!=)'
 
     t_ignore = ' '
 

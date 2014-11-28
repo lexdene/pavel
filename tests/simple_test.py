@@ -37,3 +37,13 @@ class ConditionTestCase(unittest.TestCase):
 
     def testAllIf(self):
         result, env = test_helper.execute_file('if')
+
+
+class LoopTestCase(unittest.TestCase):
+    def testSimpleWhileLoop(self):
+        result, env = test_helper.execute_file('simple_while_loop')
+        self.assertEqual(result, 10)
+
+        block = env.current_block()
+        self.assertEqual(block.get_variable('i'), 10)
+        self.assertEqual(block.get_variable('sum'), 55)

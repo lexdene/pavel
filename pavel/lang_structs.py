@@ -34,11 +34,12 @@ class Operator(LangStructBase):
         '<': 'less',
         '>': 'more',
         '=': 'assign',
+        '+=': 'add_assign',
     }
 
     def __new__(cls, parse_tree):
         operator_name = cls.OPERATOR_NAME_MAP.get(parse_tree[1], parse_tree[1])
-        operator_class_name = 'Operator' + operator_name.title()
+        operator_class_name = 'Operator' + operator_name.title().replace('_', '')
         operator_class = globals()[operator_class_name]
         return operator_class(parse_tree)
 
@@ -78,6 +79,20 @@ class OperatorAssign(LangStructBase):
         return value
 
 
+class OperatorAddAssign(LangStructBase):
+    def execute(self, env, keyword_item, value_item):
+        keyword = keyword_item[1]
+        value = create(value_item).execute(env)
+
+        block = env.current_block()
+        block.set_variable(
+            keyword,
+            block.get_variable(keyword) + value
+        )
+
+        return value
+
+
 class Keyword(LangStructBase):
     def execute(self, env):
         variable_name = self._parse_tree[1]
@@ -97,6 +112,17 @@ class IfStruct(LangStructBase):
         else:
             if else_block:
                 return create(else_block).execute(env)
+
+
+class WhileStruct(LangStructBase):
+    def execute(self, env):
+        condition = create(self._parse_tree[1])
+        body = create(self._parse_tree[2])
+
+        while condition.execute(env):
+            result = body.execute(env)
+
+        return result
 
 
 def create(parse_tree):

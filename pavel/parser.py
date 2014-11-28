@@ -87,6 +87,7 @@ class Parser:
         '''
             block : line
                   | if_struct
+                  | while_struct
         '''
         p[0] = p[1]
 
@@ -177,4 +178,14 @@ class Parser:
             p[3],
             p[7],
             p[11],
+        )
+
+    def p_while_struct(self, p):
+        '''
+            while_struct : WHILE expression INDENT multi_blocks OUTDENT
+        '''
+        p[0] = (
+            'while_struct',
+            p[2],
+            p[4],
         )
