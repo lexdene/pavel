@@ -166,7 +166,20 @@ class FunctionStruct(LangStructBase):
 class FunctionCall(LangStructBase):
     def execute(self, env):
         function_object = create(self._parse_tree[1]).execute(env)
-        return function_object.call(env, self._parse_tree[2][1])
+
+        # expand argument value at call point
+        executed_arguments = [
+            ('inner_value', create(arg).execute(env))
+            for arg in self._parse_tree[2][1]
+        ]
+
+        return function_object.call(env, executed_arguments)
+
+
+class InnerValue(LangStructBase):
+    def execute(self, env):
+        return self._parse_tree[1]
+
 
 def create(parse_tree):
     struct_type_name = parse_tree[0].title().replace('_', '')
