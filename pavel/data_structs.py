@@ -16,6 +16,9 @@ class Stack:
     def __str__(self):
         return str(self.__data)
 
+    def __iter__(self):
+        return reversed(self.__data)
+
     def is_empty(self):
         return len(self) == 0
 

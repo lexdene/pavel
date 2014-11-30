@@ -97,8 +97,7 @@ class Keyword(LangStructBase):
     def execute(self, env):
         variable_name = self._parse_tree[1]
 
-        block = env.current_block()
-        return block.get_variable(variable_name)
+        return env.get_variable(variable_name)
 
 
 class IfStruct(LangStructBase):
@@ -124,6 +123,46 @@ class WhileStruct(LangStructBase):
 
         return result
 
+
+class FunctionStruct(LangStructBase):
+    def execute(self, env):
+        self.name = self._parse_tree[1][1]
+        self.formal_param_list = self._parse_tree[2][1]
+        self.body = self._parse_tree[3]
+
+        block = env.current_block()
+        block.set_variable(
+            self.name,
+            self
+        )
+
+        return self
+
+    def call(self, env, argument_list):
+        env.enblock()
+
+        # expand params
+        for formal_param, actual_param in zip(self.formal_param_list, argument_list):
+            expression = (
+                'expression',
+                ('operator', '='),
+                formal_param,
+                actual_param
+            )
+            create(expression).execute(env)
+
+        # execute function body
+        result = create(self.body).execute(env)
+
+        env.deblock()
+
+        return result
+
+
+class FunctionCall(LangStructBase):
+    def execute(self, env):
+        function_object = create(self._parse_tree[1]).execute(env)
+        return function_object.call(env, self._parse_tree[2][1])
 
 def create(parse_tree):
     struct_type_name = parse_tree[0].title().replace('_', '')

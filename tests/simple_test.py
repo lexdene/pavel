@@ -47,3 +47,16 @@ class LoopTestCase(unittest.TestCase):
         block = env.current_block()
         self.assertEqual(block.get_variable('i'), 10)
         self.assertEqual(block.get_variable('sum'), 55)
+
+
+class FunctionTestCase(unittest.TestCase):
+    def testSimpleFunction(self):
+        result, env = test_helper.execute_file('simple_function')
+        self.assertEqual(result, 210)
+
+        block = env.current_block()
+
+        self.assertEqual(block.get_variable('i'), 500)
+        self.assertEqual(block.get_variable('a'), 55)
+        self.assertEqual(block.get_variable('b'), 530)
+        self.assertEqual(block.get_variable('c'), 1030)

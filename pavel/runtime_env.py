@@ -23,3 +23,16 @@ class Env:
 
     def current_block(self):
         return self.block_stack.top()
+
+    def get_variable(self, name):
+        for block in self.block_stack:
+            if block.contains_variable(name):
+                return block.get_variable(name)
+
+        raise KeyError(name)
+
+    def enblock(self):
+        self.block_stack.push(Block())
+
+    def deblock(self):
+        return self.block_stack.pop()

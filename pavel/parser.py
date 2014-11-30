@@ -88,6 +88,7 @@ class Parser:
             block : line
                   | if_struct
                   | while_struct
+                  | function_struct
         '''
         p[0] = p[1]
 
@@ -101,6 +102,7 @@ class Parser:
         '''
             expression : number
                        | keyword
+                       | function_call
         '''
         p[0] = p[1]
 
@@ -188,4 +190,66 @@ class Parser:
             'while_struct',
             p[2],
             p[4],
+        )
+
+    def p_function_struct(self, p):
+        '''
+            function_struct : FUNCTION keyword '(' formal_param_list ')' INDENT multi_blocks OUTDENT
+        '''
+        p[0] = (
+            'function_struct',
+            p[2],
+            p[4],
+            p[7],
+        )
+
+    def p_formal_param_list_with_one_item(self, p):
+        '''
+            formal_param_list : keyword
+        '''
+        p[0] = (
+            'formal_param_list',
+            [p[1]]
+        )
+
+    def p_formal_param_list_with_multi_items(self, p):
+        '''
+            formal_param_list : formal_param_list ',' keyword
+        '''
+        formal_param_list = p[1][1]
+        formal_param_list.append(p[3])
+
+        p[0] = (
+            'formal_param_list',
+            formal_param_list
+        )
+
+    def p_function_call(self, p):
+        '''
+            function_call : keyword '(' comma_expression_list ')'
+        '''
+        p[0] = (
+            'function_call',
+            p[1],
+            p[3],
+        )
+
+    def p_actual_param_list_with_one_item(self, p):
+        '''
+            comma_expression_list : expression
+        '''
+        p[0] = (
+            'comma_expression_list',
+            [p[1]],
+        )
+
+    def p_actual_param_list_with_multi_items(self, p):
+        '''
+            comma_expression_list : comma_expression_list ',' expression
+        '''
+        exp_list = p[1][1]
+        exp_list.append(p[3])
+        p[0] = (
+            'comma_expression_list',
+            ext_list,
         )
