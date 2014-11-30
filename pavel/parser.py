@@ -4,13 +4,23 @@ from . import lexer
 
 
 class Parser:
+    def __init__(self):
+        self._debug = False
+
+        import os
+        if os.environ.get('PARSER_DEBUG') == 'on':
+            self._debug = True
+
     def _create_lexer(self):
         return lexer.Lexer()
 
     def parse(self, source):
-        # self._debug_parse_tokens(source)
+        if self._debug:
+            self._debug_parse_tokens(source)
+            parser = yacc.yacc(module=self)
+        else:
+            parser = yacc.yacc(module=self, debug=False, write_tables=False)
 
-        parser = yacc.yacc(module=self, debug=False, write_tables=False)
         return parser.parse(
             source,
             lexer=self._create_lexer()
@@ -18,8 +28,9 @@ class Parser:
 
     def _debug_parse_tokens(self, source):
         _lexer = self._create_lexer()
-        print(_lexer.tokens)
         print(' ==== debug begin ==== ')
+
+        print(_lexer.tokens)
 
         print(source)
         print(repr(source))
