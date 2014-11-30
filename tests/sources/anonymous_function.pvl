@@ -1,0 +1,6 @@
+function calc(n, func)
+    func(n + 1)
+
+calc(10, function (n)
+    n * n
+)

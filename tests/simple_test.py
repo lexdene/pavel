@@ -60,3 +60,7 @@ class FunctionTestCase(unittest.TestCase):
         self.assertEqual(block.get_variable('a'), 55)
         self.assertEqual(block.get_variable('b'), 530)
         self.assertEqual(block.get_variable('c'), 1030)
+
+    def testAnonymousFunction(self):
+        result, env = test_helper.execute_file('anonymous_function')
+        self.assertEqual(result, 121)

@@ -126,7 +126,11 @@ class WhileStruct(LangStructBase):
 
 class FunctionStruct(LangStructBase):
     def execute(self, env):
-        self.name = self._parse_tree[1][1]
+        if self._parse_tree[1]:
+            self.name = self._parse_tree[1][1]
+        else:
+            self.name = None
+
         self.formal_param_list = self._parse_tree[2][1]
         self.body = self._parse_tree[3]
 

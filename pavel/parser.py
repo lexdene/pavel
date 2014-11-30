@@ -103,6 +103,7 @@ class Parser:
             expression : number
                        | keyword
                        | function_call
+                       | anonymous_function_struct
         '''
         p[0] = p[1]
 
@@ -251,5 +252,16 @@ class Parser:
         exp_list.append(p[3])
         p[0] = (
             'comma_expression_list',
-            ext_list,
+            exp_list,
+        )
+
+    def p_anonymous_function_struct(self, p):
+        '''
+            anonymous_function_struct : FUNCTION '(' formal_param_list ')' INDENT multi_blocks OUTDENT
+        '''
+        p[0] = (
+            'function_struct',
+            None,
+            p[3],
+            p[6]
         )
