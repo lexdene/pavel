@@ -113,9 +113,8 @@ class Lexer:
                 t.type = 'NEWLINE'
                 return t
         else:
-            if self.__last_token.type != 'OUTDENT':
-                t.type = 'NEWLINE'
-                return t
+            t.type = 'NEWLINE'
+            return t
 
     def t_error(self, t):
         raise ValueError(t)

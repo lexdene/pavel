@@ -97,15 +97,16 @@ class Parser:
     def p_block(self, p):
         '''
             block : line
-                  | if_struct
-                  | while_struct
-                  | function_struct
         '''
         p[0] = p[1]
 
     def p_line(self, p):
         '''
             line : expression NEWLINE
+                 | if_struct NEWLINE
+                 | if_with_else_struct NEWLINE
+                 | while_struct NEWLINE
+                 | function_struct NEWLINE
         '''
         p[0] = p[1]
 
@@ -114,7 +115,7 @@ class Parser:
             expression : number
                        | keyword
                        | function_call
-                       | anonymous_function_struct
+                       | anonymous_function_struct NEWLINE
         '''
         p[0] = p[1]
 
@@ -150,7 +151,7 @@ class Parser:
         '''
         p[0] = ('keyword', p[1])
 
-    def p_simple_if(self, p):
+    def p_if_struct(self, p):
         '''
             if_struct : IF expression INDENT multi_blocks OUTDENT
         '''
@@ -161,37 +162,26 @@ class Parser:
             None,
         )
 
-    def p_if_with_else(self, p):
-        '''
-            if_struct : IF expression INDENT multi_blocks OUTDENT ELSE INDENT multi_blocks OUTDENT
-        '''
-        p[0] = (
-            'if_struct',
-            p[2],
-            p[4],
-            p[8],
-        )
-
     def p_if_with_block(self, p):
         '''
-            if_struct : IF INDENT multi_blocks OUTDENT THEN INDENT multi_blocks OUTDENT
+            if_struct : IF INDENT multi_blocks OUTDENT NEWLINE THEN INDENT multi_blocks OUTDENT
         '''
         p[0] = (
             'if_struct',
             p[3],
-            p[7],
+            p[8],
             None
         )
 
-    def p_if_with_block_and_else(self, p):
+    def p_if_with_else(self, p):
         '''
-            if_struct : IF INDENT multi_blocks OUTDENT THEN INDENT multi_blocks OUTDENT ELSE INDENT multi_blocks OUTDENT
+            if_with_else_struct : if_struct NEWLINE ELSE INDENT multi_blocks OUTDENT
         '''
         p[0] = (
             'if_struct',
-            p[3],
-            p[7],
-            p[11],
+            p[1][1],
+            p[1][2],
+            p[5],
         )
 
     def p_while_struct(self, p):
