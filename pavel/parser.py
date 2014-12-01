@@ -67,36 +67,36 @@ class Parser:
 
     def p_first_rule(self, p):
         '''
-            first_rule : multi_blocks
+            first_rule : multi_lines
         '''
         p[0] = p[1]
 
     def p_error(self, p):
         raise ValueError(p)
 
-    def p_multi_blocks(self, p):
+    def p_multi_lines(self, p):
         '''
-            multi_blocks : empty
-                         | block
-                         | multi_blocks block
+            multi_lines : empty
+                        | line
+                        | multi_lines line
         '''
         if len(p) == 2:
             if p[1] is None:
                 p[0] = (
-                    'multi_blocks',
+                    'multi_lines',
                     []
                 )
             else:
                 p[0] = (
-                    'multi_blocks',
+                    'multi_lines',
                     [p[1]]
                 )
         elif len(p) == 3:
-            block_list = p[1][1]
-            block_list.append(p[2])
+            line_list = p[1][1]
+            line_list.append(p[2])
             p[0] = (
-                'multi_blocks',
-                block_list
+                'multi_lines',
+                line_list
             )
         else:
             raise ValueError('len is %d' % len(p))
@@ -104,12 +104,6 @@ class Parser:
     def p_empty(self, p):
         'empty :'
         p[0] = None
-
-    def p_block(self, p):
-        '''
-            block : line
-        '''
-        p[0] = p[1]
 
     def p_line(self, p):
         '''
@@ -127,7 +121,7 @@ class Parser:
                        | keyword
                        | function_call
                        | anonymous_function_struct NEWLINE
-                       | scope_block
+                       | block
         '''
         p[0] = p[1]
 
@@ -188,7 +182,7 @@ class Parser:
 
     def p_if_struct(self, p):
         '''
-            if_struct : IF expression INDENT multi_blocks OUTDENT
+            if_struct : IF expression INDENT multi_lines OUTDENT
         '''
         p[0] = (
             'if_struct',
@@ -199,7 +193,7 @@ class Parser:
 
     def p_if_with_block(self, p):
         '''
-            if_struct : IF INDENT multi_blocks OUTDENT NEWLINE THEN INDENT multi_blocks OUTDENT
+            if_struct : IF INDENT multi_lines OUTDENT NEWLINE THEN INDENT multi_lines OUTDENT
         '''
         p[0] = (
             'if_struct',
@@ -210,7 +204,7 @@ class Parser:
 
     def p_if_with_else(self, p):
         '''
-            if_with_else_struct : if_struct NEWLINE ELSE INDENT multi_blocks OUTDENT
+            if_with_else_struct : if_struct NEWLINE ELSE INDENT multi_lines OUTDENT
         '''
         p[0] = (
             'if_struct',
@@ -221,7 +215,7 @@ class Parser:
 
     def p_while_struct(self, p):
         '''
-            while_struct : WHILE expression DO scope_block
+            while_struct : WHILE expression DO block
         '''
         p[0] = (
             'while_struct',
@@ -231,7 +225,7 @@ class Parser:
 
     def p_function_struct(self, p):
         '''
-            function_struct : FUNCTION keyword '(' formal_param_list ')' INDENT multi_blocks OUTDENT
+            function_struct : FUNCTION keyword '(' formal_param_list ')' INDENT multi_lines OUTDENT
         '''
         p[0] = (
             'function_struct',
@@ -273,7 +267,7 @@ class Parser:
 
     def p_call_block(self, p):
         '''
-            function_call : keyword scope_block
+            function_call : keyword block
         '''
         p[0] = (
             'function_call',
@@ -303,7 +297,7 @@ class Parser:
 
     def p_anonymous_function_struct(self, p):
         '''
-            anonymous_function_struct : FUNCTION '(' formal_param_list ')' INDENT multi_blocks OUTDENT
+            anonymous_function_struct : FUNCTION '(' formal_param_list ')' INDENT multi_lines OUTDENT
         '''
         p[0] = (
             'function_struct',
@@ -314,7 +308,7 @@ class Parser:
 
     def p_anonymous_function_struct_without_argument(self, p):
         '''
-            scope_block : INDENT multi_blocks OUTDENT
+            block : INDENT multi_lines OUTDENT
         '''
         p[0] = (
             'function_struct',

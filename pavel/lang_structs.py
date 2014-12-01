@@ -6,7 +6,7 @@ class LangStructBase(object):
         self._parse_tree = parse_tree
 
 
-class MultiBlocks(LangStructBase):
+class MultiLines(LangStructBase):
     def execute(self, env):
         result = None
         for sub_tree in self._parse_tree[1]:
