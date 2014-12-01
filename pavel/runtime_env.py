@@ -1,4 +1,5 @@
 from . import data_structs
+from . import runtime_objects
 
 
 class Block:
@@ -28,6 +29,10 @@ class Env:
         for block in self.block_stack:
             if block.contains_variable(name):
                 return block.get_variable(name)
+
+        ro = getattr(runtime_objects, name)
+        if ro:
+            return ro
 
         raise KeyError(name)
 

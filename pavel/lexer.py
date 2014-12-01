@@ -28,13 +28,14 @@ class Lexer:
         self.__last_token = self.lexer.token()
         return self.__last_token
 
-    literals = r'+-*/(),'
+    literals = r'+-*/(),.'
 
     reserve_keywords = (
         'if',
         'then',
         'else',
         'while',
+        'do',
         'function',
     )
 

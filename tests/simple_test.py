@@ -64,3 +64,13 @@ class FunctionTestCase(unittest.TestCase):
     def testAnonymousFunction(self):
         result, env = test_helper.execute_file('anonymous_function')
         self.assertEqual(result, 121)
+
+
+class ObjectTestCase(unittest.TestCase):
+    def testSimpleObject(self):
+        result, env = test_helper.execute_file('simple_object')
+        self.assertEqual(result, 20)
+
+        self.assertEqual(env.get_variable('a'), 1)
+        self.assertEqual(env.get_variable('b'), 10)
+        self.assertEqual(env.get_variable('c'), 20)

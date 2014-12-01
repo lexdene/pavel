@@ -1,0 +1,10 @@
+user = object
+    id = 1
+    age = 10
+
+a = user.id
+b = user.age
+
+user.age = 20
+
+c = user.age

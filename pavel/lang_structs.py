@@ -1,3 +1,6 @@
+from enum import Enum
+
+
 class LangStructBase(object):
     def __init__(self, parse_tree):
         self._parse_tree = parse_tree
@@ -14,9 +17,8 @@ class MultiBlocks(LangStructBase):
 
 class Expression(LangStructBase):
     def execute(self, env):
-        if len(self._parse_tree) == 4:
-            operator = create(self._parse_tree[1])
-            return operator.execute(env, *self._parse_tree[2:4])
+        operator = create(self._parse_tree[1])
+        return operator.execute(env, *self._parse_tree[2:])
 
 
 class Number(LangStructBase):
@@ -35,6 +37,7 @@ class Operator(LangStructBase):
         '>': 'more',
         '=': 'assign',
         '+=': 'add_assign',
+        '.': 'attr',
     }
 
     def __new__(cls, parse_tree):
@@ -93,7 +96,27 @@ class OperatorAddAssign(LangStructBase):
         return value
 
 
+class OperatorAttr(LangStructBase):
+    def execute(self, env, object_item, attr_name):
+        object_item = create(object_item).execute(env)
+        attr_name = create(attr_name).name
+        return object_item.get_attr(attr_name)
+
+
+class OperatorSetAttr(LangStructBase):
+    def execute(self, env, object_item, attr_name, value):
+        object_item = create(object_item).execute(env)
+        attr_name = create(attr_name).name
+        value = create(value).execute(value)
+
+        return object_item.set_attr(attr_name, value)
+
+
 class Keyword(LangStructBase):
+    @property
+    def name(self):
+        return self._parse_tree[1]
+
     def execute(self, env):
         variable_name = self._parse_tree[1]
 
@@ -125,13 +148,22 @@ class WhileStruct(LangStructBase):
 
 
 class FunctionStruct(LangStructBase):
+    class ReturnType(Enum):
+        return_value = 1
+        return_name_map = 2
+        return_list_by_lines = 3
+
     def execute(self, env):
         if self._parse_tree[1]:
             self.name = self._parse_tree[1][1]
         else:
             self.name = None
 
-        self.formal_param_list = self._parse_tree[2][1]
+        if self._parse_tree[2]:
+            self.formal_param_list = self._parse_tree[2][1]
+        else:
+            self.formal_param_list = []
+
         self.body = self._parse_tree[3]
 
         block = env.current_block()
@@ -142,25 +174,25 @@ class FunctionStruct(LangStructBase):
 
         return self
 
-    def call(self, env, argument_list):
+    def call(self, env, argument_list, return_type=ReturnType.return_value):
         env.enblock()
 
         # expand params
+        block = env.current_block()
         for formal_param, actual_param in zip(self.formal_param_list, argument_list):
-            expression = (
-                'expression',
-                ('operator', '='),
-                formal_param,
-                actual_param
-            )
-            create(expression).execute(env)
+            block.set_variable(formal_param[1], actual_param)
 
         # execute function body
         result = create(self.body).execute(env)
 
         env.deblock()
 
-        return result
+        if return_type == self.ReturnType.return_value:
+            return result
+        elif return_type == self.ReturnType.return_name_map:
+            return block.name_map
+        else:
+            raise ValueError(return_type)
 
 
 class FunctionCall(LangStructBase):
@@ -169,16 +201,11 @@ class FunctionCall(LangStructBase):
 
         # expand argument value at call point
         executed_arguments = [
-            ('inner_value', create(arg).execute(env))
+            create(arg).execute(env)
             for arg in self._parse_tree[2][1]
         ]
 
         return function_object.call(env, executed_arguments)
-
-
-class InnerValue(LangStructBase):
-    def execute(self, env):
-        return self._parse_tree[1]
 
 
 def create(parse_tree):

@@ -17,14 +17,25 @@ class Parser:
     def parse(self, source):
         if self._debug:
             self._debug_parse_tokens(source)
-            parser = yacc.yacc(module=self)
-        else:
-            parser = yacc.yacc(module=self, debug=False, write_tables=False)
+            self.__parser = yacc.yacc(module=self)
 
-        return parser.parse(
+            debug = 1
+        else:
+            self.__parser = yacc.yacc(module=self, debug=False, write_tables=False)
+
+            debug = 0
+
+        result = self.__parser.parse(
             source,
-            lexer=self._create_lexer()
+            lexer=self._create_lexer(),
+            debug=debug
         )
+
+        if self._debug:
+            import pprint
+            pprint.pprint(result, indent=4)
+
+        return result
 
     def _debug_parse_tokens(self, source):
         _lexer = self._create_lexer()
@@ -116,6 +127,7 @@ class Parser:
                        | keyword
                        | function_call
                        | anonymous_function_struct NEWLINE
+                       | scope_block
         '''
         p[0] = p[1]
 
@@ -137,6 +149,29 @@ class Parser:
             ('operator', p[2]),
             p[1],
             p[3]
+        )
+
+    def p_get_attr_expression(self, p):
+        '''
+            expression : expression '.' keyword
+        '''
+        p[0] = (
+            'expression',
+            ('operator', p[2]),
+            p[1],
+            p[3]
+        )
+
+    def p_set_attr_expression(self, p):
+        '''
+            expression : expression '.' keyword ASSIGN expression
+        '''
+        p[0] = (
+            'expression',
+            ('operator', 'set_attr'),
+            p[1],
+            p[3],
+            p[5],
         )
 
     def p_number(self, p):
@@ -186,12 +221,12 @@ class Parser:
 
     def p_while_struct(self, p):
         '''
-            while_struct : WHILE expression INDENT multi_blocks OUTDENT
+            while_struct : WHILE expression DO scope_block
         '''
         p[0] = (
             'while_struct',
             p[2],
-            p[4],
+            p[4][3],
         )
 
     def p_function_struct(self, p):
@@ -236,6 +271,16 @@ class Parser:
             p[3],
         )
 
+    def p_call_block(self, p):
+        '''
+            function_call : keyword scope_block
+        '''
+        p[0] = (
+            'function_call',
+            p[1],
+            ('comma_expression_list', [p[2]]),
+        )
+
     def p_actual_param_list_with_one_item(self, p):
         '''
             comma_expression_list : expression
@@ -265,4 +310,15 @@ class Parser:
             None,
             p[3],
             p[6]
+        )
+
+    def p_anonymous_function_struct_without_argument(self, p):
+        '''
+            scope_block : INDENT multi_blocks OUTDENT
+        '''
+        p[0] = (
+            'function_struct',
+            None,
+            None,
+            p[2]
         )
