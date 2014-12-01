@@ -129,11 +129,19 @@ class IfStruct(LangStructBase):
         then_block = self._parse_tree[2]
         else_block = self._parse_tree[3]
 
-        if create(condition).execute(env):
+        condition_result = create(condition).execute(env)
+
+        if condition_result is True:
             return create(then_block).execute(env)
-        else:
+        elif condition_result is False:
             if else_block:
                 return create(else_block).execute(env)
+        else:
+            raise ValueError(
+                'if condition only accept boolean, get type(%s)' % (
+                    type(condition_result),
+                )
+            )
 
 
 class WhileStruct(LangStructBase):
