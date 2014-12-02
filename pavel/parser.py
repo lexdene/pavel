@@ -182,12 +182,12 @@ class Parser:
 
     def p_if_struct(self, p):
         '''
-            if_struct : IF expression INDENT multi_lines OUTDENT
+            if_struct : IF '(' expression ')' INDENT multi_lines OUTDENT
         '''
         p[0] = (
             'if_struct',
-            p[2],
-            p[4],
+            p[3],
+            p[6],
             None,
         )
 
@@ -215,12 +215,12 @@ class Parser:
 
     def p_while_struct(self, p):
         '''
-            while_struct : WHILE expression DO block
+            while_struct : WHILE '(' expression ')' block
         '''
         p[0] = (
             'while_struct',
-            p[2],
-            p[4][3],
+            p[3],
+            p[5][3],
         )
 
     def p_function_struct(self, p):
