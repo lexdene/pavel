@@ -267,7 +267,7 @@ class Parser:
 
     def p_call_block(self, p):
         '''
-            function_call : keyword block
+            function_call : expression block
         '''
         p[0] = (
             'function_call',

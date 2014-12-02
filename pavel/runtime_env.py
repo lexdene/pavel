@@ -30,9 +30,8 @@ class Env:
             if block.contains_variable(name):
                 return block.get_variable(name)
 
-        ro = getattr(runtime_objects, name)
-        if ro:
-            return ro
+        if name in runtime_objects.buildin_objects:
+            return runtime_objects.buildin_objects[name]
 
         raise KeyError(name)
 

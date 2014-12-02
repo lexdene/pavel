@@ -1,4 +1,4 @@
-user = object
+user = lang.object
     id = 1
     age = 10
 

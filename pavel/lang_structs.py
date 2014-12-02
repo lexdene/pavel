@@ -100,7 +100,7 @@ class OperatorAttr(LangStructBase):
     def execute(self, env, object_item, attr_name):
         object_item = create(object_item).execute(env)
         attr_name = create(attr_name).name
-        return object_item.get_attr(attr_name)
+        return object_item[attr_name]
 
 
 class OperatorSetAttr(LangStructBase):
@@ -109,7 +109,9 @@ class OperatorSetAttr(LangStructBase):
         attr_name = create(attr_name).name
         value = create(value).execute(value)
 
-        return object_item.set_attr(attr_name, value)
+        object_item[attr_name] = value
+
+        return value
 
 
 class Keyword(LangStructBase):
