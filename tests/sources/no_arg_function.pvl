@@ -1,0 +1,7 @@
+i = 500
+
+function get_i()
+    i = 0
+    i
+
+a = get_i()

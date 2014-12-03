@@ -23,17 +23,15 @@ class ConditionTestCase(unittest.TestCase):
     def testSimpleIf(self):
         result, env = test_helper.execute_file('simple_if')
 
-        block = env.current_block()
-        self.assertEqual(block.get_variable('a'), 3)
-        self.assertEqual(block.get_variable('b'), 1)
-        self.assertEqual(block.contains_variable('c'), False)
+        self.assertEqual(env['a'], 3)
+        self.assertEqual(env['b'], 1)
+        self.assertEqual('c' in env, False)
 
     def testIfWithElse(self):
         result, env = test_helper.execute_file('if_with_else')
 
-        block = env.current_block()
-        self.assertEqual(block.get_variable('a'), 3)
-        self.assertEqual(block.get_variable('b'), 2)
+        self.assertEqual(env['a'], 3)
+        self.assertEqual(env['b'], 2)
 
     def testAllIf(self):
         result, env = test_helper.execute_file('if')
@@ -44,9 +42,8 @@ class LoopTestCase(unittest.TestCase):
         result, env = test_helper.execute_file('simple_while_loop')
         self.assertEqual(result, 10)
 
-        block = env.current_block()
-        self.assertEqual(block.get_variable('i'), 10)
-        self.assertEqual(block.get_variable('sum'), 55)
+        self.assertEqual(env['i'], 10)
+        self.assertEqual(env['sum'], 55)
 
 
 class FunctionTestCase(unittest.TestCase):
@@ -54,16 +51,22 @@ class FunctionTestCase(unittest.TestCase):
         result, env = test_helper.execute_file('simple_function')
         self.assertEqual(result, 210)
 
-        block = env.current_block()
-
-        self.assertEqual(block.get_variable('i'), 500)
-        self.assertEqual(block.get_variable('a'), 55)
-        self.assertEqual(block.get_variable('b'), 530)
-        self.assertEqual(block.get_variable('c'), 1030)
+        self.assertEqual(env['i'], 500)
+        self.assertEqual(env['a'], 55)
+        self.assertEqual(env['b'], 530)
+        self.assertEqual(env['c'], 1030)
 
     def testAnonymousFunction(self):
         result, env = test_helper.execute_file('anonymous_function')
         self.assertEqual(result, 121)
+
+    def testNoArgFunction(self):
+        result, env = test_helper.execute_file('no_arg_function')
+        self.assertEqual(result, 0)
+
+    def testFunctionScope(self):
+        result, env = test_helper.execute_file('function_scope')
+        self.assertEqual(result, 0)
 
 
 class ObjectTestCase(unittest.TestCase):
@@ -71,6 +74,6 @@ class ObjectTestCase(unittest.TestCase):
         result, env = test_helper.execute_file('simple_object')
         self.assertEqual(result, 20)
 
-        self.assertEqual(env.get_variable('a'), 1)
-        self.assertEqual(env.get_variable('b'), 10)
-        self.assertEqual(env.get_variable('c'), 20)
+        self.assertEqual(env['a'], 1)
+        self.assertEqual(env['b'], 10)
+        self.assertEqual(env['c'], 20)

@@ -108,6 +108,7 @@ class Parser:
     def p_line(self, p):
         '''
             line : expression NEWLINE
+                 | assign NEWLINE
                  | if_struct NEWLINE
                  | if_with_else_struct NEWLINE
                  | while_struct NEWLINE
@@ -136,7 +137,17 @@ class Parser:
                        | expression GTE expression
                        | expression LTE expression
                        | expression EQUAL expression
-                       | keyword ASSIGN expression
+        '''
+        p[0] = (
+            'expression',
+            ('operator', p[2]),
+            p[1],
+            p[3]
+        )
+
+    def p_assign(self, p):
+        '''
+            assign : keyword ASSIGN expression
         '''
         p[0] = (
             'expression',
@@ -234,6 +245,17 @@ class Parser:
             p[7],
         )
 
+    def p_no_arg_function_struct(self, p):
+        '''
+            function_struct : FUNCTION keyword '(' ')' INDENT multi_lines OUTDENT
+        '''
+        p[0] = (
+            'function_struct',
+            p[2],
+            None,
+            p[6],
+        )
+
     def p_formal_param_list_with_one_item(self, p):
         '''
             formal_param_list : keyword
@@ -257,12 +279,22 @@ class Parser:
 
     def p_function_call(self, p):
         '''
-            function_call : keyword '(' comma_expression_list ')'
+            function_call : expression '(' comma_expression_list ')'
         '''
         p[0] = (
             'function_call',
             p[1],
             p[3],
+        )
+
+    def p_no_arg_function_call(self, p):
+        '''
+            function_call : expression '(' ')'
+        '''
+        p[0] = (
+            'function_call',
+            p[1],
+            None
         )
 
     def p_call_block(self, p):

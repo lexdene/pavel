@@ -74,10 +74,10 @@ class OperatorMore(LangStructBase):
 
 class OperatorAssign(LangStructBase):
     def execute(self, env, keyword_item, value_item):
+        keyword = create(keyword_item)
         value = create(value_item).execute(env)
 
-        block = env.current_block()
-        block.set_variable(keyword_item[1], value)
+        env[keyword.name] = value
 
         return value
 
@@ -87,11 +87,7 @@ class OperatorAddAssign(LangStructBase):
         keyword = keyword_item[1]
         value = create(value_item).execute(env)
 
-        block = env.current_block()
-        block.set_variable(
-            keyword,
-            block.get_variable(keyword) + value
-        )
+        env[keyword] = env[keyword] + value
 
         return value
 
@@ -121,8 +117,7 @@ class Keyword(LangStructBase):
 
     def execute(self, env):
         variable_name = self._parse_tree[1]
-
-        return env.get_variable(variable_name)
+        return env[variable_name]
 
 
 class IfStruct(LangStructBase):
@@ -176,31 +171,32 @@ class FunctionStruct(LangStructBase):
 
         self.body = self._parse_tree[3]
 
-        block = env.current_block()
-        block.set_variable(
-            self.name,
-            self
-        )
+        self.defined_scope = env.current_scope
+
+        env[self.name] = self
 
         return self
 
     def call(self, env, argument_list, return_type=ReturnType.return_value):
-        env.enblock()
+        _scope_before_call = env.current_scope
+
+        env.current_scope = self.defined_scope
+        env.enscope()
 
         # expand params
-        block = env.current_block()
+        scope = env.current_scope
         for formal_param, actual_param in zip(self.formal_param_list, argument_list):
-            block.set_variable(formal_param[1], actual_param)
+            env[formal_param[1]] = actual_param
 
         # execute function body
         result = create(self.body).execute(env)
 
-        env.deblock()
+        env.current_scope = _scope_before_call
 
         if return_type == self.ReturnType.return_value:
             return result
         elif return_type == self.ReturnType.return_name_map:
-            return block.name_map
+            return scope.name_map
         else:
             raise ValueError(return_type)
 
@@ -209,11 +205,14 @@ class FunctionCall(LangStructBase):
     def execute(self, env):
         function_object = create(self._parse_tree[1]).execute(env)
 
-        # expand argument value at call point
-        executed_arguments = [
-            create(arg).execute(env)
-            for arg in self._parse_tree[2][1]
-        ]
+        if self._parse_tree[2]:
+            # expand argument value at call point
+            executed_arguments = [
+                create(arg).execute(env)
+                for arg in self._parse_tree[2][1]
+            ]
+        else:
+            executed_arguments = []
 
         return function_object.call(env, executed_arguments)
 

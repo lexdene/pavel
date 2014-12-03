@@ -1,0 +1,11 @@
+i = 500
+
+function creator()
+    i = 0
+
+    function get_i()
+        i
+
+    get_i
+
+a = creator()()
