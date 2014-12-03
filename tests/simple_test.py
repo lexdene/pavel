@@ -12,6 +12,9 @@ class CalcTestCase(unittest.TestCase):
         result, env = test_helper.execute_file('calc')
         self.assertEqual(result, 23)
 
+    def testNonAssocCompOperator(self):
+        self.assertRaises(ValueError, test_helper.execute_file, 'non_assoc_comp_operator')
+
 
 class VariableTestCase(unittest.TestCase):
     def testVariable(self):

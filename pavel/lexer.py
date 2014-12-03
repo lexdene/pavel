@@ -44,11 +44,7 @@ class Lexer:
 
         'ASSIGN',
 
-        'GT',
-        'LT',
-        'GTE',
-        'LTE',
-        'EQUAL',
+        'CMP',
 
         'NEWLINE',
         'INDENT',
@@ -59,15 +55,8 @@ class Lexer:
     )
 
     t_NUMBER = r'[0-9]+[a-z]?'
-
-    t_GT = r'>'
-    t_LT = r'<'
-    t_GTE = r'>='
-    t_LTE = r'<='
-    t_EQUAL = r'=='
-
+    t_CMP = r'[<>]=?|=='
     t_ASSIGN = r'[\*\/\+\-]=|=(?!=)'
-
     t_ignore = ' '
 
     def t_keyword(self, t):

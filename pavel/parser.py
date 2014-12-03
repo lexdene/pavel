@@ -60,7 +60,7 @@ class Parser:
     tokens = lexer.Lexer.tokens
 
     precedence = (
-        ('left', 'GT', 'LT', 'GTE', 'LTE'),
+        ('nonassoc', 'CMP'),
         ('left', '+', '-'),
         ('left', '*', '/'),
     )
@@ -132,11 +132,7 @@ class Parser:
                        | expression '-' expression
                        | expression '*' expression
                        | expression '/' expression
-                       | expression GT expression
-                       | expression LT expression
-                       | expression GTE expression
-                       | expression LTE expression
-                       | expression EQUAL expression
+                       | expression CMP expression
         '''
         p[0] = (
             'expression',
