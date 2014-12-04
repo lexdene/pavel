@@ -111,6 +111,7 @@ class Parser:
                  | assign NEWLINE
                  | if_struct NEWLINE
                  | if_with_else_struct NEWLINE
+                 | for_struct NEWLINE
                  | while_struct NEWLINE
                  | function_struct NEWLINE
         '''
@@ -218,6 +219,17 @@ class Parser:
             p[1][1],
             p[1][2],
             p[5],
+        )
+
+    def p_for_struct(self, p):
+        '''
+            for_struct : FOR '(' keyword IN expression ')' INDENT multi_lines OUTDENT
+        '''
+        p[0] = (
+            'for_struct',
+            p[3],
+            p[5],
+            p[8],
         )
 
     def p_while_struct(self, p):

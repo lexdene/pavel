@@ -152,6 +152,27 @@ class WhileStruct(LangStructBase):
         return result
 
 
+class ForStruct(LangStructBase):
+    def execute(self, env):
+        keyword = create(self._parse_tree[1])
+        expression = create(self._parse_tree[2])
+        body = create(self._parse_tree[3])
+
+        generator = expression.execute(env)
+
+        while True:
+            value, goon = generator.next()
+
+            if goon is not True:
+                break
+
+            env[keyword.name] = value
+
+            result = body.execute(env)
+
+        return result
+
+
 class FunctionStruct(LangStructBase):
     class ReturnType(Enum):
         return_value = 1

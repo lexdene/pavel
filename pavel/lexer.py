@@ -34,6 +34,8 @@ class Lexer:
         'if',
         'then',
         'else',
+        'for',
+        'in',
         'while',
         'function',
     )

@@ -1,0 +1,6 @@
+sum = 0
+
+for(i in lang.range(10))
+    sum += i
+
+sum

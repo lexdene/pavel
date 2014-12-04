@@ -48,6 +48,13 @@ class LoopTestCase(unittest.TestCase):
         self.assertEqual(env['i'], 10)
         self.assertEqual(env['sum'], 55)
 
+    def testSimpleForLoop(self):
+        result, env = test_helper.execute_file('simple_for_loop')
+        self.assertEqual(result, 45)
+
+        self.assertEqual(env['i'], 9)
+        self.assertEqual(env['sum'], 45)
+
 
 class FunctionTestCase(unittest.TestCase):
     def testSimpleFunction(self):

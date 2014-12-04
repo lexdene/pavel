@@ -24,8 +24,27 @@ class _Object:
         return value
 
 
+class _RangeWrapper:
+    def call(self, env, argv):
+        return _RangeGenerator(argv[0])
+
+
+class _RangeGenerator:
+    def __init__(self, n):
+        self.__n = n
+        self.__i = -1
+
+    def next(self):
+        self.__i += 1
+
+        goon = self.__i < self.__n
+
+        return self.__i, goon
+
+
 buildin_objects = dict(
     lang=dict(
-        object=_ObjectConstructor()
+        object=_ObjectConstructor(),
+        range=_RangeWrapper(),
     )
 )
