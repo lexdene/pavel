@@ -1,0 +1,7 @@
+user = lang.object
+    id = 1
+    age = 10
+    get_age = function()
+        this.age
+
+a = user.get_age()

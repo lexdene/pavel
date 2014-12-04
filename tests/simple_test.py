@@ -87,3 +87,9 @@ class ObjectTestCase(unittest.TestCase):
         self.assertEqual(env['a'], 1)
         self.assertEqual(env['b'], 10)
         self.assertEqual(env['c'], 20)
+
+    def testMemberFunction(self):
+        result, env = test_helper.execute_file('simple_member_function')
+        self.assertEqual(result, 10)
+
+        self.assertEqual(env['a'], 10)

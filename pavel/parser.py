@@ -122,7 +122,8 @@ class Parser:
             expression : number
                        | keyword
                        | function_call
-                       | anonymous_function_struct NEWLINE
+                       | member_function_call
+                       | anonymous_function_struct
                        | block
         '''
         p[0] = p[1]
@@ -285,6 +286,28 @@ class Parser:
             formal_param_list
         )
 
+    def p_member_function_call(self, p):
+        '''
+            member_function_call : expression '.' keyword '(' comma_expression_list ')'
+        '''
+        p[0] = (
+            'member_function_call',
+            p[1],
+            p[3],
+            p[5],
+        )
+
+    def p_no_param_member_function_call(self, p):
+        '''
+            member_function_call : expression '.' keyword '(' ')'
+        '''
+        p[0] = (
+            'member_function_call',
+            p[1],
+            p[3],
+            None,
+        )
+
     def p_function_call(self, p):
         '''
             function_call : expression '(' comma_expression_list ')'
@@ -327,6 +350,7 @@ class Parser:
     def p_actual_param_list_with_multi_items(self, p):
         '''
             comma_expression_list : comma_expression_list ',' expression
+                                  | comma_expression_list ',' expression NEWLINE
         '''
         exp_list = p[1][1]
         exp_list.append(p[3])
@@ -344,6 +368,17 @@ class Parser:
             None,
             p[3],
             p[6]
+        )
+
+    def p_anonymous_function_without_param(self, p):
+        '''
+            anonymous_function_struct : FUNCTION '(' ')' INDENT multi_lines OUTDENT
+        '''
+        p[0] = (
+            'function_struct',
+            None,
+            None,
+            p[5],
         )
 
     def p_anonymous_function_struct_without_argument(self, p):

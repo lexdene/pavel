@@ -1,9 +1,10 @@
 class _ObjectConstructor:
-    def call(self, env, argument_list):
+    def call(self, env, this_object, argument_list):
         block = argument_list[0]
 
         data = argument_list[0].call(
             env,
+            this_object,
             [],
             return_type=block.ReturnType.return_name_map
         )
@@ -25,7 +26,7 @@ class _Object:
 
 
 class _RangeWrapper:
-    def call(self, env, argv):
+    def call(self, env, this_object, argv):
         return _RangeGenerator(argv[0])
 
 

@@ -198,14 +198,19 @@ class FunctionStruct(LangStructBase):
 
         return self
 
-    def call(self, env, argument_list, return_type=ReturnType.return_value):
+    def call(self, env, this_object,
+             argument_list, return_type=ReturnType.return_value):
         _scope_before_call = env.current_scope
 
         env.current_scope = self.defined_scope
         env.enscope()
 
-        # expand params
         scope = env.current_scope
+
+        # this object
+        env['this'] = this_object
+
+        # expand params
         for formal_param, actual_param in zip(self.formal_param_list, argument_list):
             env[formal_param[1]] = actual_param
 
@@ -235,7 +240,26 @@ class FunctionCall(LangStructBase):
         else:
             executed_arguments = []
 
-        return function_object.call(env, executed_arguments)
+        return function_object.call(env, None, executed_arguments)
+
+
+class MemberFunctionCall(LangStructBase):
+    def execute(self, env):
+        this_object = create(self._parse_tree[1]).execute(env)
+        member_key = create(self._parse_tree[2])
+
+        function_object = this_object[member_key.name]
+
+        if self._parse_tree[3]:
+            # expand params value at call point
+            params = [
+                create(param).execute(env)
+                for param in self._parse_tree[3][1]
+            ]
+        else:
+            params = []
+
+        return function_object.call(env, this_object, params)
 
 
 def create(parse_tree):
