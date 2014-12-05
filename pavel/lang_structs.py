@@ -41,35 +41,35 @@ class Operator(LangStructBase):
     }
 
     def __new__(cls, parse_tree):
-        operator_name = cls.OPERATOR_NAME_MAP.get(parse_tree[1], parse_tree[1])
-        operator_class_name = 'Operator' + operator_name.title().replace('_', '')
-        operator_class = globals()[operator_class_name]
+        name = cls.OPERATOR_NAME_MAP.get(parse_tree[1], parse_tree[1])
+        class_name = 'Operator' + name.title().replace('_', '')
+        operator_class = globals()[class_name]
         return operator_class(parse_tree)
 
 
 class OperatorAdd(LangStructBase):
-    def execute(self, env, arg1, arg2):
-        return create(arg1).execute(env) + create(arg2).execute(env)
+    def execute(self, env, param1, param2):
+        return create(param1).execute(env) + create(param2).execute(env)
 
 
 class OperatorMultiply(LangStructBase):
-    def execute(self, env, arg1, arg2):
-        return create(arg1).execute(env) * create(arg2).execute(env)
+    def execute(self, env, param1, param2):
+        return create(param1).execute(env) * create(param2).execute(env)
 
 
 class OperatorEqual(LangStructBase):
-    def execute(self, env, arg1, arg2):
-        return create(arg1).execute(env) == create(arg2).execute(env)
+    def execute(self, env, param1, param2):
+        return create(param1).execute(env) == create(param2).execute(env)
 
 
 class OperatorLess(LangStructBase):
-    def execute(self, env, arg1, arg2):
-        return create(arg1).execute(env) < create(arg2).execute(env)
+    def execute(self, env, param1, param2):
+        return create(param1).execute(env) < create(param2).execute(env)
 
 
 class OperatorMore(LangStructBase):
-    def execute(self, env, arg1, arg2):
-        return create(arg1).execute(env) > create(arg2).execute(env)
+    def execute(self, env, param1, param2):
+        return create(param1).execute(env) > create(param2).execute(env)
 
 
 class OperatorAssign(LangStructBase):
@@ -199,7 +199,7 @@ class FunctionStruct(LangStructBase):
         return self
 
     def call(self, env, this_object,
-             argument_list, return_type=ReturnType.return_value):
+             params, return_type=ReturnType.return_value):
         _scope_before_call = env.current_scope
 
         env.current_scope = self.defined_scope
@@ -211,7 +211,7 @@ class FunctionStruct(LangStructBase):
         env['this'] = this_object
 
         # expand params
-        for formal_param, actual_param in zip(self.formal_param_list, argument_list):
+        for formal_param, actual_param in zip(self.formal_param_list, params):
             env[formal_param[1]] = actual_param
 
         # execute function body
@@ -232,15 +232,15 @@ class FunctionCall(LangStructBase):
         function_object = create(self._parse_tree[1]).execute(env)
 
         if self._parse_tree[2]:
-            # expand argument value at call point
-            executed_arguments = [
-                create(arg).execute(env)
-                for arg in self._parse_tree[2][1]
+            # expand param value at call point
+            executed_params = [
+                create(param).execute(env)
+                for param in self._parse_tree[2][1]
             ]
         else:
-            executed_arguments = []
+            executed_params = []
 
-        return function_object.call(env, None, executed_arguments)
+        return function_object.call(env, None, executed_params)
 
 
 class MemberFunctionCall(LangStructBase):

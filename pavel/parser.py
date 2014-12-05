@@ -21,7 +21,11 @@ class Parser:
 
             debug = 1
         else:
-            self.__parser = yacc.yacc(module=self, debug=False, write_tables=False)
+            self.__parser = yacc.yacc(
+                module=self,
+                debug=False,
+                write_tables=False
+            )
 
             debug = 0
 
@@ -254,7 +258,7 @@ class Parser:
             p[7],
         )
 
-    def p_no_arg_function_struct(self, p):
+    def p_no_param_function_struct(self, p):
         '''
             function_struct : FUNCTION keyword '(' ')' INDENT multi_lines OUTDENT
         '''
@@ -318,7 +322,7 @@ class Parser:
             p[3],
         )
 
-    def p_no_arg_function_call(self, p):
+    def p_no_param_function_call(self, p):
         '''
             function_call : expression '(' ')'
         '''
@@ -381,7 +385,7 @@ class Parser:
             p[5],
         )
 
-    def p_anonymous_function_struct_without_argument(self, p):
+    def p_anonymous_function_struct_without_param(self, p):
         '''
             block : INDENT multi_lines OUTDENT
         '''

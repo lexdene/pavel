@@ -13,7 +13,11 @@ class CalcTestCase(unittest.TestCase):
         self.assertEqual(result, 23)
 
     def testNonAssocCompOperator(self):
-        self.assertRaises(ValueError, test_helper.execute_file, 'non_assoc_comp_operator')
+        self.assertRaises(
+            ValueError,
+            test_helper.execute_file,
+            'non_assoc_comp_operator'
+        )
 
 
 class VariableTestCase(unittest.TestCase):
@@ -71,7 +75,7 @@ class FunctionTestCase(unittest.TestCase):
         self.assertEqual(result, 121)
 
     def testNoArgFunction(self):
-        result, env = test_helper.execute_file('no_arg_function')
+        result, env = test_helper.execute_file('no_param_function')
         self.assertEqual(result, 0)
 
     def testFunctionScope(self):

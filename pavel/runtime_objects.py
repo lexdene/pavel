@@ -1,8 +1,8 @@
 class _ObjectConstructor:
-    def call(self, env, this_object, argument_list):
-        block = argument_list[0]
+    def call(self, env, this_object, params):
+        block = params[0]
 
-        data = argument_list[0].call(
+        data = params[0].call(
             env,
             this_object,
             [],
@@ -26,8 +26,8 @@ class _Object:
 
 
 class _RangeWrapper:
-    def call(self, env, this_object, argv):
-        return _RangeGenerator(argv[0])
+    def call(self, env, this_object, params):
+        return _RangeGenerator(params[0])
 
 
 class _RangeGenerator:
