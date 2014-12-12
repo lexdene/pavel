@@ -147,6 +147,22 @@ class Parser:
             p[3]
         )
 
+    def p_keyword_expression(self, p):
+        '''
+            expression : expression keyword expression
+        '''
+        p[0] = (
+            'function_call',
+            p[2],
+            (
+                'comma_expression_list',
+                [
+                    p[1],
+                    p[3],
+                ]
+            )
+        )
+
     def p_assign(self, p):
         '''
             assign : keyword ASSIGN expression

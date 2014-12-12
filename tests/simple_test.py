@@ -19,6 +19,11 @@ class CalcTestCase(unittest.TestCase):
             'non_assoc_comp_operator'
         )
 
+    def testKeywordOperator(self):
+        result, env = test_helper.execute_file('keyword_operator')
+        self.assertEqual(result, 30)
+        self.assertEqual(env['r'], 30)
+
 
 class VariableTestCase(unittest.TestCase):
     def testVariable(self):
