@@ -1,0 +1,8 @@
+user = lang.object
+    id = 1
+    age = 10
+
+a = user.id
+b = user.age
+c = user["id"]
+d = user["age"]

@@ -97,8 +97,26 @@ class ObjectTestCase(unittest.TestCase):
         self.assertEqual(env['b'], 10)
         self.assertEqual(env['c'], 20)
 
+    def testAttrAndItem(self):
+        result, env = test_helper.execute_file('object_attr_and_item')
+
+        self.assertEqual(env['a'], 1)
+        self.assertEqual(env['b'], 10)
+        self.assertEqual(env['c'], 1)
+        self.assertEqual(env['d'], 10)
+
     def testMemberFunction(self):
         result, env = test_helper.execute_file('simple_member_function')
         self.assertEqual(result, 10)
 
         self.assertEqual(env['a'], 10)
+
+
+class DelegatorTestCase(unittest.TestCase):
+    def testDelegatorObject(self):
+        result, env = test_helper.execute_file('delegator_object')
+        self.assertEqual(result, 20)
+
+        self.assertEqual(env['r1'], 20)
+        self.assertEqual(env['r2'], 90)
+        self.assertEqual(env['r3'], 90)

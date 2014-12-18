@@ -26,6 +26,11 @@ class Number(LangStructBase):
         return int(self._parse_tree[1])
 
 
+class String(LangStructBase):
+    def execute(self, env):
+        return self._parse_tree[1][1:-1]
+
+
 class Operator(LangStructBase):
     OPERATOR_NAME_MAP = {
         '+': 'add',
@@ -38,6 +43,7 @@ class Operator(LangStructBase):
         '=': 'assign',
         '+=': 'add_assign',
         '.': 'attr',
+        '[]': 'item',
     }
 
     def __new__(cls, parse_tree):
@@ -96,7 +102,7 @@ class OperatorAttr(LangStructBase):
     def execute(self, env, object_item, attr_name):
         object_item = create(object_item).execute(env)
         attr_name = create(attr_name).name
-        return object_item[attr_name]
+        return object_item.get_attr(env, attr_name)
 
 
 class OperatorSetAttr(LangStructBase):
@@ -108,6 +114,13 @@ class OperatorSetAttr(LangStructBase):
         object_item[attr_name] = value
 
         return value
+
+
+class OperatorItem(LangStructBase):
+    def execute(self, env, object_item, attr_name):
+        object_item = create(object_item).execute(env)
+        attr_name = create(attr_name).execute(env)
+        return object_item.get_attr(env, attr_name)
 
 
 class Keyword(LangStructBase):
@@ -203,9 +216,7 @@ class FunctionStruct(LangStructBase):
         _scope_before_call = env.current_scope
 
         env.current_scope = self.defined_scope
-        env.enscope()
-
-        scope = env.current_scope
+        scope = env.enscope()
 
         # this object
         env['this'] = this_object
@@ -248,7 +259,7 @@ class MemberFunctionCall(LangStructBase):
         this_object = create(self._parse_tree[1]).execute(env)
         member_key = create(self._parse_tree[2])
 
-        function_object = this_object[member_key.name]
+        function_object = this_object.get_attr(env, member_key.name)
 
         if self._parse_tree[3]:
             # expand params value at call point

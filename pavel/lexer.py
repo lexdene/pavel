@@ -28,7 +28,7 @@ class Lexer:
         self.__last_token = self.lexer.token()
         return self.__last_token
 
-    literals = r'+-*/(),.'
+    literals = r'+-*/()[],.'
 
     reserve_keywords = (
         'if',
@@ -43,6 +43,7 @@ class Lexer:
     tokens = (
         'NUMBER',
         'KEYWORD',
+        'STRING',
 
         'ASSIGN',
 
@@ -57,6 +58,7 @@ class Lexer:
     )
 
     t_NUMBER = r'[0-9]+[a-z]?'
+    t_STRING = r'"[^"]*"'
     t_CMP = r'[<>]=?|=='
     t_ASSIGN = r'[\*\/\+\-]=|=(?!=)'
     t_ignore = ' '
@@ -106,6 +108,10 @@ class Lexer:
         else:
             t.type = 'NEWLINE'
             return t
+
+    def t_comment(self, t):
+        '\#[^\n]*(?=\n)'
+        pass
 
     def t_error(self, t):
         raise ValueError(t)

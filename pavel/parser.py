@@ -125,6 +125,7 @@ class Parser:
         '''
             expression : number
                        | keyword
+                       | string
                        | function_call
                        | member_function_call
                        | anonymous_function_struct
@@ -197,6 +198,17 @@ class Parser:
             p[5],
         )
 
+    def p_get_item_expression(self, p):
+        '''
+            expression : expression '[' expression ']'
+        '''
+        p[0] = (
+            'expression',
+            ('operator', p[2] + p[4]),
+            p[1],
+            p[3]
+        )
+
     def p_number(self, p):
         '''
             number : NUMBER
@@ -208,6 +220,12 @@ class Parser:
             keyword : KEYWORD
         '''
         p[0] = ('keyword', p[1])
+
+    def p_string(self, p):
+        '''
+            string : STRING
+        '''
+        p[0] = ('string', p[1])
 
     def p_if_struct(self, p):
         '''

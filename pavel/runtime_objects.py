@@ -17,7 +17,7 @@ class _Object:
         if data:
             self.__data = data
 
-    def __getitem__(self, attr_name):
+    def get_attr(self, env, attr_name):
         return self.__data[attr_name]
 
     def __setitem__(self, attr_name, value):
@@ -43,9 +43,49 @@ class _RangeGenerator:
         return self.__i, goon
 
 
+class _DelegatorWrapper:
+    def call(self, env, this_object, params):
+        block = params[0]
+
+        data = params[0].call(
+            env,
+            this_object,
+            [],
+            return_type=block.ReturnType.return_name_map
+        )
+
+        return _Delegator(data)
+
+
+class _Delegator:
+    def __init__(self, data):
+        self.__data = data
+
+    def call(self, env, this_object, params):
+        return _DelegatedObject(self.__data, params[0])
+
+
+class _DelegatedObject:
+    def __init__(self, delegator, obj):
+        self.__delegator = delegator
+        self.__obj = obj
+
+    def get_attr(self, env, name):
+        return self.__delegator['get'].call(env, self, [name])
+
+
+class _DictWrapper:
+    def __init__(self, **kwargs):
+        self.__data = kwargs
+
+    def get_attr(self, env, attr_name):
+        return self.__data[attr_name]
+
+
 buildin_objects = dict(
-    lang=dict(
+    lang=_DictWrapper(
         object=_ObjectConstructor(),
         range=_RangeWrapper(),
+        delegator=_DelegatorWrapper(),
     )
 )
