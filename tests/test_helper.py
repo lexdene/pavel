@@ -1,9 +1,8 @@
 import os
 import pavel
 
-DIRPATH = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)),
-    'sources'
+DIRPATH = os.path.normpath(
+    os.path.join(__file__, '../../examples')
 )
 
 
