@@ -120,3 +120,10 @@ class DelegatorTestCase(unittest.TestCase):
         self.assertEqual(env['r1'], 20)
         self.assertEqual(env['r2'], 90)
         self.assertEqual(env['r3'], 90)
+
+    def testSimpleSuper(self):
+        result, env = test_helper.execute_file('simple_super')
+
+        self.assertEqual(env['r1'], 10)
+        self.assertEqual(env['r2'], 90)
+        self.assertEqual(env['r3'], 90)

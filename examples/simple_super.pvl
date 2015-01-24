@@ -1,0 +1,16 @@
+user = lang.object
+    id = 1
+    age = 10
+
+d1 = lang.delegator
+    get = function(name)
+        if(name == "age")
+            lang.super().get.args_call(this, name)
+        else
+            90
+
+delegated_user = d1(user)
+
+r1 = delegated_user.age  # assert 10
+r2 = delegated_user.id   # assert 90
+r3 = delegated_user.xxxx # assert 90

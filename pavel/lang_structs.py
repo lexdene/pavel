@@ -1,4 +1,4 @@
-from enum import Enum
+from . import runtime_objects
 
 
 class LangStructBase(object):
@@ -187,11 +187,6 @@ class ForStruct(LangStructBase):
 
 
 class FunctionStruct(LangStructBase):
-    class ReturnType(Enum):
-        return_value = 1
-        return_name_map = 2
-        return_list_by_lines = 3
-
     def execute(self, env):
         if self._parse_tree[1]:
             self.name = self._parse_tree[1][1]
@@ -211,8 +206,8 @@ class FunctionStruct(LangStructBase):
 
         return self
 
-    def call(self, env, this_object,
-             params, return_type=ReturnType.return_value):
+    def call(self, env, this_object, params,
+             return_type=runtime_objects.FunctionReturnType.RETURN_VALUE):
         _scope_before_call = env.current_scope
 
         env.current_scope = self.defined_scope
@@ -220,6 +215,8 @@ class FunctionStruct(LangStructBase):
 
         # this object
         env['this'] = this_object
+        env.this_object = this_object
+        env.current_function = self
 
         # expand params
         for formal_param, actual_param in zip(self.formal_param_list, params):
@@ -230,10 +227,12 @@ class FunctionStruct(LangStructBase):
 
         env.current_scope = _scope_before_call
 
-        if return_type == self.ReturnType.return_value:
+        if return_type == runtime_objects.FunctionReturnType.RETURN_VALUE:
             return result
-        elif return_type == self.ReturnType.return_name_map:
+        elif return_type == runtime_objects.FunctionReturnType.RETURN_NAME_MAP:
             return scope.name_map
+        elif return_type == runtime_objects.FunctionReturnType.RETURN_SCOPE:
+            return scope
         else:
             raise ValueError(return_type)
 
