@@ -8,6 +8,14 @@ class FunctionReturnType(Enum):
     RETURN_LIST_BY_LINES = 4
 
 
+class PavelObject:
+    def call(self, env, this_object, params):
+        pass
+
+    def get_attr(self, env, attr_name):
+        pass
+
+
 class _ObjectConstructor:
     def call(self, env, this_object, params):
         block = params[0]
@@ -22,7 +30,7 @@ class _ObjectConstructor:
         return _Object(data)
 
 
-class _Object:
+class _Object(PavelObject):
     def __init__(self, data=None):
         if data:
             self.__data = data
@@ -33,14 +41,6 @@ class _Object:
     def __setitem__(self, attr_name, value):
         self.__data[attr_name] = value
         return value
-
-
-class _DictWrapper:
-    def __init__(self, **kwargs):
-        self.__data = kwargs
-
-    def get_attr(self, env, attr_name):
-        return self.__data[attr_name]
 
 
 class _RangeWrapper:
@@ -130,7 +130,7 @@ class _Delegator:
         return _DefaultDelegator()
 
 
-class _DelegatedObject:
+class _DelegatedObject(PavelObject):
     def __init__(self, env, delegator, obj):
         self.__delegator = delegator
         self.__obj = obj
@@ -153,7 +153,7 @@ class _SuperWrapper:
 
 
 buildin_objects = dict(
-    lang=_DictWrapper(
+    lang=dict(
         object=_ObjectConstructor(),
         range=_RangeWrapper(),
         delegator=_DelegatorWrapper(),

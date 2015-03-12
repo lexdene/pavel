@@ -1,4 +1,4 @@
-from . import runtime_objects
+from . import runtime_objects, runtime_functions
 
 
 class LangStructBase(object):
@@ -102,7 +102,7 @@ class OperatorAttr(LangStructBase):
     def execute(self, env, object_item, attr_name):
         object_item = create(object_item).execute(env)
         attr_name = create(attr_name).name
-        return object_item.get_attr(env, attr_name)
+        return runtime_functions.get_attr(object_item, attr_name, env)
 
 
 class OperatorSetAttr(LangStructBase):
@@ -258,7 +258,7 @@ class MemberFunctionCall(LangStructBase):
         this_object = create(self._parse_tree[1]).execute(env)
         member_key = create(self._parse_tree[2])
 
-        function_object = this_object.get_attr(env, member_key.name)
+        function_object = runtime_functions.get_attr(this_object, member_key.name, env)
 
         if self._parse_tree[3]:
             # expand params value at call point
