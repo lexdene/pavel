@@ -19,7 +19,7 @@ class Parser:
             self._debug_parse_tokens(source)
             self.__parser = yacc.yacc(module=self)
 
-            debug = 1
+            debug = 0
         else:
             self.__parser = yacc.yacc(
                 module=self,
@@ -88,19 +88,24 @@ class Parser:
             if p[1] is None:
                 p[0] = (
                     'multi_lines',
-                    []
+                    dict(
+                        lines=[]
+                    ),
                 )
             else:
                 p[0] = (
                     'multi_lines',
-                    [p[1]]
+                    dict(
+                        lines=[p[1]]
+                    ),
                 )
         elif len(p) == 3:
-            line_list = p[1][1]
-            line_list.append(p[2])
+            line_list = p[1][1]['lines'] + [p[2]]
             p[0] = (
                 'multi_lines',
-                line_list
+                dict(
+                    lines=line_list
+                ),
             )
         else:
             raise ValueError('len is %d' % len(p))
@@ -114,7 +119,6 @@ class Parser:
             line : expression NEWLINE
                  | assign NEWLINE
                  | if_struct NEWLINE
-                 | if_with_else_struct NEWLINE
                  | for_struct NEWLINE
                  | while_struct NEWLINE
                  | function_struct NEWLINE
@@ -143,9 +147,13 @@ class Parser:
         '''
         p[0] = (
             'expression',
-            ('operator', p[2]),
-            p[1],
-            p[3]
+            dict(
+                operator=('operator', p[2]),
+                args=(
+                    p[1],
+                    p[3]
+                )
+            )
         )
 
     def p_keyword_expression(self, p):
@@ -154,10 +162,9 @@ class Parser:
         '''
         p[0] = (
             'function_call',
-            p[2],
-            (
-                'comma_expression_list',
-                [
+            dict(
+                function=p[2],
+                params=[
                     p[1],
                     p[3],
                 ]
@@ -170,9 +177,13 @@ class Parser:
         '''
         p[0] = (
             'expression',
-            ('operator', p[2]),
-            p[1],
-            p[3]
+            dict(
+                operator=('operator', p[2]),
+                args=(
+                    p[1],
+                    p[3]
+                )
+            )
         )
 
     def p_get_attr_expression(self, p):
@@ -181,9 +192,13 @@ class Parser:
         '''
         p[0] = (
             'expression',
-            ('operator', p[2]),
-            p[1],
-            p[3]
+            dict(
+                operator=('operator', p[2]),
+                args=(
+                    p[1],
+                    p[3]
+                )
+            )
         )
 
     def p_set_attr_expression(self, p):
@@ -192,10 +207,14 @@ class Parser:
         '''
         p[0] = (
             'expression',
-            ('operator', 'set_attr'),
-            p[1],
-            p[3],
-            p[5],
+            dict(
+                operator=('operator', 'set_attr'),
+                args=(
+                    p[1],
+                    p[3],
+                    p[5],
+                )
+            )
         )
 
     def p_get_item_expression(self, p):
@@ -204,9 +223,13 @@ class Parser:
         '''
         p[0] = (
             'expression',
-            ('operator', p[2] + p[4]),
-            p[1],
-            p[3]
+            dict(
+                operator=('operator', p[2] + p[4]),
+                args=(
+                    p[1],
+                    p[3]
+                )
+            )
         )
 
     def p_number(self, p):
@@ -219,7 +242,12 @@ class Parser:
         '''
             keyword : KEYWORD
         '''
-        p[0] = ('keyword', p[1])
+        p[0] = (
+            'keyword',
+            dict(
+                name=p[1]
+            )
+        )
 
     def p_string(self, p):
         '''
@@ -233,9 +261,11 @@ class Parser:
         '''
         p[0] = (
             'if_struct',
-            p[3],
-            p[6],
-            None,
+            dict(
+                condition=p[3],
+                then_block=p[6],
+                else_block=None,
+            )
         )
 
     def p_if_with_block(self, p):
@@ -244,20 +274,24 @@ class Parser:
         '''
         p[0] = (
             'if_struct',
-            p[3],
-            p[8],
-            None
+            dict(
+                condition=p[3],
+                then_block=p[8],
+                else_block=None
+            )
         )
 
     def p_if_with_else(self, p):
         '''
-            if_with_else_struct : if_struct NEWLINE ELSE INDENT multi_lines OUTDENT
+            if_struct : if_struct NEWLINE ELSE INDENT multi_lines OUTDENT
         '''
         p[0] = (
             'if_struct',
-            p[1][1],
-            p[1][2],
-            p[5],
+            dict(
+                condition=p[1][1]['condition'],
+                then_block=p[1][1]['then_block'],
+                else_block=p[5],
+            )
         )
 
     def p_for_struct(self, p):
@@ -266,9 +300,11 @@ class Parser:
         '''
         p[0] = (
             'for_struct',
-            p[3],
-            p[5],
-            p[8],
+            dict(
+                keyword=p[3],
+                expression=p[5],
+                body=p[8],
+            )
         )
 
     def p_while_struct(self, p):
@@ -277,8 +313,10 @@ class Parser:
         '''
         p[0] = (
             'while_struct',
-            p[3],
-            p[5][3],
+            dict(
+                condition=p[3],
+                body=p[5],
+            )
         )
 
     def p_function_struct(self, p):
@@ -287,9 +325,11 @@ class Parser:
         '''
         p[0] = (
             'function_struct',
-            p[2],
-            p[4],
-            p[7],
+            dict(
+                name=p[2],
+                params=p[4],
+                body=p[7],
+            )
         )
 
     def p_no_param_function_struct(self, p):
@@ -298,31 +338,27 @@ class Parser:
         '''
         p[0] = (
             'function_struct',
-            p[2],
-            None,
-            p[6],
+            dict(
+                name=p[2],
+                params=[],
+                body=p[6],
+            )
         )
 
     def p_formal_param_list_with_one_item(self, p):
         '''
             formal_param_list : keyword
         '''
-        p[0] = (
-            'formal_param_list',
-            [p[1]]
-        )
+        p[0] = [p[1]]
 
     def p_formal_param_list_with_multi_items(self, p):
         '''
             formal_param_list : formal_param_list ',' keyword
         '''
-        formal_param_list = p[1][1]
+        formal_param_list = p[1]
         formal_param_list.append(p[3])
 
-        p[0] = (
-            'formal_param_list',
-            formal_param_list
-        )
+        p[0] = p[1] + [p[3]]
 
     def p_member_function_call(self, p):
         '''
@@ -330,9 +366,11 @@ class Parser:
         '''
         p[0] = (
             'member_function_call',
-            p[1],
-            p[3],
-            p[5],
+            dict(
+                this_object=p[1],
+                name=p[3],
+                params=p[5],
+            )
         )
 
     def p_no_param_member_function_call(self, p):
@@ -341,9 +379,11 @@ class Parser:
         '''
         p[0] = (
             'member_function_call',
-            p[1],
-            p[3],
-            None,
+            dict(
+                this_object=p[1],
+                name=p[3],
+                params=[],
+            )
         )
 
     def p_function_call(self, p):
@@ -352,8 +392,10 @@ class Parser:
         '''
         p[0] = (
             'function_call',
-            p[1],
-            p[3],
+            dict(
+                function=p[1],
+                params=p[3],
+            )
         )
 
     def p_no_param_function_call(self, p):
@@ -362,8 +404,10 @@ class Parser:
         '''
         p[0] = (
             'function_call',
-            p[1],
-            None
+            dict(
+                function=p[1],
+                params=[]
+            )
         )
 
     def p_call_block(self, p):
@@ -372,30 +416,24 @@ class Parser:
         '''
         p[0] = (
             'function_call',
-            p[1],
-            ('comma_expression_list', [p[2]]),
+            dict(
+                function=p[1],
+                params=[p[2]]
+            )
         )
 
     def p_actual_param_list_with_one_item(self, p):
         '''
             comma_expression_list : expression
         '''
-        p[0] = (
-            'comma_expression_list',
-            [p[1]],
-        )
+        p[0] = [p[1]]
 
     def p_actual_param_list_with_multi_items(self, p):
         '''
             comma_expression_list : comma_expression_list ',' expression
                                   | comma_expression_list ',' expression NEWLINE
         '''
-        exp_list = p[1][1]
-        exp_list.append(p[3])
-        p[0] = (
-            'comma_expression_list',
-            exp_list,
-        )
+        p[0] = p[1] + [p[3]]
 
     def p_anonymous_function_struct(self, p):
         '''
@@ -403,9 +441,11 @@ class Parser:
         '''
         p[0] = (
             'function_struct',
-            None,
-            p[3],
-            p[6]
+            dict(
+                name=None,
+                params=p[3],
+                body=p[6]
+            )
         )
 
     def p_anonymous_function_without_param(self, p):
@@ -414,9 +454,11 @@ class Parser:
         '''
         p[0] = (
             'function_struct',
-            None,
-            None,
-            p[5],
+            dict(
+                name=None,
+                params=[],
+                body=p[5],
+            )
         )
 
     def p_anonymous_function_struct_without_param(self, p):
@@ -425,7 +467,9 @@ class Parser:
         '''
         p[0] = (
             'function_struct',
-            None,
-            None,
-            p[2]
+            dict(
+                name=None,
+                params=[],
+                body=p[2]
+            )
         )

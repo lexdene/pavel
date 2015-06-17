@@ -1,14 +1,14 @@
 from enum import Enum
 from ply import lex
 
-from . import data_structs
+from ..common.data_structs import Stack
 
 
 class Lexer:
     def __init__(self):
         self.lexer = lex.lex(module=self)
 
-        self.indents = data_structs.Stack()
+        self.indents = Stack()
         self.indents.push(0)
 
         self.__last_token = None
@@ -78,6 +78,7 @@ class Lexer:
         if len(t.lexer.lexdata) > t.lexer.lexpos:
             next_char = t.lexer.lexdata[t.lexer.lexpos]
             if next_char == '\n':
+                t.lexer.lineno += 1
                 # do nothing with empty line
                 return
 
@@ -102,10 +103,13 @@ class Lexer:
                 return t
             else:
                 t.lexer.skip(-len(t.value))
+                t.lexer.lineno += 1
 
                 t.type = 'NEWLINE'
                 return t
         else:
+            t.lexer.lineno += 1
+
             t.type = 'NEWLINE'
             return t
 
