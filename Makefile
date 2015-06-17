@@ -8,5 +8,8 @@ test:
 clean:
 	rm -fv parser.out parsetab.py
 
-pep8:
+full-pep8:
 	find . -name '*.py' -exec pep8 -r {} \;
+
+pep8:
+	find . -name '*.py' -exec pep8 --ignore=E501 -r {} \;
