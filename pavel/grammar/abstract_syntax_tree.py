@@ -123,9 +123,10 @@ class OperatorSetAttr(AbstractSyntaxNode):
 
 class OperatorItem(AbstractSyntaxNode):
     def execute(self, scope, args):
+        print('operator item:', args)
         object_item = create(args[0]).execute(scope)
         attr_name = create(args[1]).execute(scope)
-        return runtime_functions.get_attr(scope, object_item, attr_name)
+        return runtime_utils.get_attr(scope, object_item, attr_name)
 
 
 class Keyword(AbstractSyntaxNode):
@@ -207,14 +208,15 @@ class FunctionStruct(AbstractSyntaxNode):
         scope_in_call = Scope(
             called_outer_scope=scope,
             defined_outer_scope=self.defined_scope,
+            this_object=this_object,
+            current_function=self
         )
         # scope.current_scope = self.defined_scope
         # scope = scope.enscope()
 
         # this object
-        scope_in_call['this'] = this_object
-        scope_in_call.this_object = this_object
-        scope_in_call.current_function = self
+        # scope_in_call.this_object = this_object
+        # scope_in_call.current_function = self
 
         # expand params
         for formal_param, actual_param in zip(self.params, params):
@@ -257,7 +259,7 @@ class MemberFunctionCall(AbstractSyntaxNode):
         this_object = create(self.this_object).execute(scope)
         member_key = create(self.name)
 
-        function_object = runtime_utils.get_attr(this_object, member_key.name, scope)
+        function_object = runtime_utils.get_attr(scope, this_object, member_key.name)
 
         # expand params value at call point
         params = [

@@ -2,30 +2,31 @@ from . import object
 from .function import FunctionReturnType, native_function
 
 
-class _ObjectConstructor:
-    def call(self, scope, this_object, params):
-        data = params[0].call(
-            scope,
-            this_object,
-            [],
-            return_type=FunctionReturnType.RETURN_NAME_MAP
-        )
+@native_function
+def object_constructor(scope, this_object, params):
+    data = params[0].call(
+        scope,
+        this_object,
+        [],
+        return_type=FunctionReturnType.RETURN_NAME_MAP
+    )
 
-        return object.PvlObject(
-            cls=object_class,
-            data=data
-        )
+    return object.PvlObject(
+        cls=object_class,
+        data=data
+    )
+
 
 @native_function
 def object_get(scope, this_object, params, **kwargs):
-    return this_object.obj.data[params[0]]
+    return this_object.instance.data[params[0]]
 
 
 @native_function
 def object_set(scope, this_object, params, **kwargs):
     key = params[0]
     value = params[1]
-    this_object.obj.data[key] = value
+    this_object.instance.data[key] = value
     return value
 
 
@@ -52,9 +53,9 @@ object_class = object.PvlClass(
 #         return value
 
 
-class _RangeWrapper:
-    def call(self, scope, this_object, params):
-        return _RangeGenerator(params[0])
+@native_function
+def range(scope, this_object, params):
+    return _RangeGenerator(params[0])
 
 
 class _RangeGenerator:
@@ -70,21 +71,67 @@ class _RangeGenerator:
         return self.__i, goon
 
 
-class _DelegatorWrapper:
-    def call(self, scope, this_object, params):
-        block = params[0]
+@native_function
+def delegator_constructor(scope, this_object, params):
+    block = params[0]
 
-        scope = params[0].call(
-            scope,
-            this_object,
-            [],
-            return_type=FunctionReturnType.RETURN_SCOPE
+    data = params[0].call(
+        scope,
+        this_object,
+        [],
+        return_type=FunctionReturnType.RETURN_NAME_MAP
+    )
+
+    # delegator = _Delegator(scope.name_map)
+    # scope.defined_object = delegator
+
+    delegated_class = object.PvlClass(
+        name=None,
+        attrs=(),
+        delegators=(
+            (key, value)
+            for key, value in data.items()
+        ),
+        parents=(),
+    )
+
+    # return delegator
+    return object.PvlObject(
+        cls=delegator_class,
+        data=dict(
+            delegated_class=delegated_class,
+            original_data=data,
         )
+    )
 
-        delegator = _Delegator(scope.name_map)
-        scope.defined_object = delegator
 
-        return delegator
+@native_function
+def delegator_call(scope, this_object, params, **kwargs):
+    print('delegator call:')
+    print(this_object, params)
+    print(this_object.instance.data)
+
+    data = params[0].call(
+        scope,
+        this_object,
+        [],
+        return_type=FunctionReturnType.RETURN_NAME_MAP
+    )
+
+    return object.PvlObject(
+        cls=this_object.instance.data['delegated_class'],
+        data=data
+    )
+
+
+delegator_class = object.PvlClass(
+    name="Delegator",
+    attrs=(),
+    delegators=(
+        ('call', delegator_call),
+    ),
+    parents=(),
+)
 
 
 # class _PavelFunctionWrapper(_PavelObject):
@@ -158,9 +205,9 @@ class _DelegatorWrapper:
 
 buildins = dict(
     lang=dict(
-        object=_ObjectConstructor(),
-        range=_RangeWrapper(),
-        # delegator=_DelegatorWrapper(),
+        object=object_constructor,
+        range=range,
+        delegator=delegator_constructor,
         # super=_SuperWrapper(),
     )
 )

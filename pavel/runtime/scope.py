@@ -1,18 +1,23 @@
+from collections import OrderedDict
+
+
 class Scope:
-    def __init__(self, defined_outer_scope=None, called_outer_scope=None):
-        self.name_map = dict()
+    def __init__(self, defined_outer_scope=None, called_outer_scope=None, this_object=None, current_function=None):
+        self.name_map = OrderedDict()
         self.defined_outer_scope = defined_outer_scope
         self.called_outer_scope = called_outer_scope
+        self.this_object = this_object
+        self.current_function = current_function
 
     def __getitem__(self, name):
+        if name == 'this':
+            return self.this_object
+
         if name in self.name_map:
             return self.name_map[name]
 
         if self.defined_outer_scope:
             return self.defined_outer_scope[name]
-
-        # if name in runtime_objects.buildin_objects:
-        #     return runtime_objects.buildin_objects[name]
 
         raise KeyError(name)
 

@@ -382,7 +382,7 @@ class Parser:
             dict(
                 this_object=p[1],
                 name=p[3],
-                params=None,
+                params=[],
             )
         )
 

@@ -2,6 +2,8 @@ from . import object
 
 
 def get_attr(scope, obj, attr):
+    print('utils get attr:')
+    print(obj, attr)
     if isinstance(obj, object.PvlObject):
         return obj.get_attr(scope, attr)
     elif hasattr(obj, '__getitem__'):
