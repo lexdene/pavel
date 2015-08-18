@@ -16,6 +16,18 @@ class PvlObject:
         return self.cls.call(scope, this_object, params, self, **kwargs)
 
 
+class PvlLayer:
+    pass
+
+
+class PvlDelegateLayer(PvlLayer):
+    pass
+
+
+class PvlAttributeLayer(PvlLayer):
+    pass
+
+
 class PvlClass:
     def __init__(self, name, attrs, delegators, parents):
         # name maybe none or a string
