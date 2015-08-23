@@ -5,7 +5,7 @@ user = lang.object
 d1 = lang.delegator
     get = function(name)
         if(name == "age")
-            lang.super.get(name)
+            lang.super()[name]
         else
             90
 

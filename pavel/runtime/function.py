@@ -2,6 +2,7 @@ from enum import Enum
 
 from . import object
 
+
 class FunctionReturnType(Enum):
     RETURN_VALUE = 1
     RETURN_NAME_MAP = 2

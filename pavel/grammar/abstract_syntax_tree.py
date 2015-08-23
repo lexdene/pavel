@@ -2,6 +2,7 @@ from ..runtime.scope import Scope
 from ..runtime.function import FunctionReturnType
 from ..runtime import utils as runtime_utils
 
+
 class AbstractSyntaxNode:
     def __init__(self, parse_tree):
         self._node_name = parse_tree[0]

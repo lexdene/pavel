@@ -19,7 +19,8 @@ def object_constructor(scope, this_object, params):
 
 @native_function
 def object_get(scope, this_object, params, **kwargs):
-    return this_object.instance.data[params[0]]
+    key = params[0]
+    return this_object.instance.data[key]
 
 
 @native_function
@@ -82,45 +83,42 @@ def delegator_constructor(scope, this_object, params):
         return_type=FunctionReturnType.RETURN_NAME_MAP
     )
 
-    # delegator = _Delegator(scope.name_map)
-    # scope.defined_object = delegator
-
-    delegated_class = object.PvlClass(
-        name=None,
-        attrs=(),
-        delegators=(
-            (key, value)
-            for key, value in data.items()
-        ),
-        parents=(),
-    )
+    # delegated_class = object.PvlClass(
+    #     name=None,
+    #     attrs=(),
+    #     delegators=(
+    #         (key, value)
+    #         for key, value in data.items()
+    #     ),
+    #     parents=(object_class,),
+    # )
 
     # return delegator
     return object.PvlObject(
         cls=delegator_class,
         data=dict(
-            delegated_class=delegated_class,
-            original_data=data,
+            delegators=(
+                (key, value)
+                for key, value in data.items()
+            ),
         )
     )
 
 
 @native_function
 def delegator_call(scope, this_object, params, **kwargs):
-    print('delegator call:')
-    print(this_object, params)
-    print(this_object.instance.data)
+    inner_object = params[0]
 
-    data = params[0].call(
-        scope,
-        this_object,
-        [],
-        return_type=FunctionReturnType.RETURN_NAME_MAP
+    delegated_class = object.PvlClass(
+        name=None,
+        attrs=(),
+        delegators=this_object.instance.data['delegators'],
+        parents=(inner_object.cls,),
     )
 
     return object.PvlObject(
-        cls=this_object.instance.data['delegated_class'],
-        data=data
+        cls=delegated_class,
+        data=inner_object.data,
     )
 
 
@@ -134,73 +132,22 @@ delegator_class = object.PvlClass(
 )
 
 
-# class _PavelFunctionWrapper(_PavelObject):
-#     def __init__(self, func):
-#         self.__func = func
+@native_function
+def pvl_super(scope, this_object, params, **kwargs):
+    if scope.this_object.in_delegator:
+        result = object._ThisObject(
+            scope.this_object.instance,
+            scope.this_object.chain_point,
+            False,
+        )
+    else:
+        result = object._ThisObject(
+            scope.this_object.instance,
+            scope.this_object.chain_point.get_super(),
+            True,
+        )
 
-#     def call(
-#         self,
-#         scope,
-#         this_object,
-#         params,
-#         return_type=FunctionReturnType.RETURN_VALUE
-#     ):
-#         assert return_type == FunctionReturnType.RETURN_VALUE
-
-#         return self.__func(scope, this_object, params)
-
-
-# class _PavelFunction(_PavelObject):
-#     def __init__(self, func):
-#         self.__func = func
-
-#     def __repr__(self):
-#         return 'PavelFunction: %s' % repr(self.__func)
-
-#     @_PavelFunctionWrapper
-#     def args_call(scope, this_object, params):
-#         obj = params[0].get_obj()
-#         name = params[1]
-#         return obj.get_attr(scope, name)
-
-
-# class _DefaultDelegator(_PavelObject):
-#     @_PavelFunction
-#     def get(self, scope, attr_name):
-#         pass
-
-
-# class _Delegator:
-#     def __init__(self, data):
-#         self.__data = data
-
-#     def call(self, scope, this_object, params):
-#         return _DelegatedObject(scope, self.__data, params[0])
-
-#     def get_super(self):
-#         return _DefaultDelegator()
-
-
-# class _DelegatedObject(PavelObject):
-#     def __init__(self, scope, delegator, obj):
-#         self.__delegator = delegator
-#         self.__obj = obj
-
-#     def get_attr(self, scope, name):
-#         return self.__delegator['get'].call(
-#             scope,
-#             self,
-#             [name],
-#         )
-
-#     def get_obj(self):
-#         return self.__obj
-
-
-# class _SuperWrapper:
-#     def call(self, scope, this_object, params):
-#         result = None
-#         return scope.current_function.defined_scope.defined_object.get_super()
+    return result
 
 
 buildins = dict(
@@ -208,6 +155,6 @@ buildins = dict(
         object=object_constructor,
         range=range,
         delegator=delegator_constructor,
-        # super=_SuperWrapper(),
+        super=pvl_super,
     )
 )

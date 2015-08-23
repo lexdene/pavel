@@ -3,6 +3,9 @@ from collections import OrderedDict
 
 class PvlObject:
     def __init__(self, cls, data):
+        assert cls is not None
+        assert isinstance(data, dict)
+
         self.cls = cls
         self.data = data
 
@@ -14,18 +17,6 @@ class PvlObject:
 
     def call(self, scope, this_object, params, **kwargs):
         return self.cls.call(scope, this_object, params, self, **kwargs)
-
-
-class PvlLayer:
-    pass
-
-
-class PvlDelegateLayer(PvlLayer):
-    pass
-
-
-class PvlAttributeLayer(PvlLayer):
-    pass
 
 
 class PvlClass:
@@ -46,8 +37,8 @@ class PvlClass:
         # parents should be a tuple
         self.__parents = parents
 
-    def get_attr(self, scope, instance, name):
-        if self.__delegators and 'get' in self.__delegators:
+    def get_attr(self, scope, instance, name, delegators_enable=True):
+        if delegators_enable and self.__delegators and 'get' in self.__delegators:
             return self.__delegators['get'].call(
                 scope,
                 _ThisObject(instance, self),
@@ -83,10 +74,37 @@ class PvlClass:
                 params,
                 **kwargs
             )
+        else:
+            raise AttributeError('no call method')
+
+    def get_super(self):
+        return self.__parents[0]
 
 
-class _ThisObject:
+class _ThisObject(PvlObject):
     def __init__(self, instance, chain_point, in_delegator=False):
         self.instance = instance
         self.chain_point = chain_point
         self.in_delegator = in_delegator
+
+        super(_ThisObject, self).__init__(
+            self.chain_point,
+            self.instance.data
+        )
+
+    def get_attr(self, scope, name):
+        return self.chain_point.get_attr(
+            scope,
+            self.instance,
+            name,
+            self.in_delegator
+        )
+
+    def __repr__(self):
+        return '<%s.%s object (%s, %s, %s)>' % (
+            self.__class__.__module__,
+            self.__class__.__name__,
+            self.instance,
+            self.chain_point,
+            self.in_delegator
+        )
