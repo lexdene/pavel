@@ -1,7 +1,7 @@
 import unittest
 import pavel
 
-from tests import test_helper
+from . import test_helper
 
 
 class CalcTestCase(unittest.TestCase):
