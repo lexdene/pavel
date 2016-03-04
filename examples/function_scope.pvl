@@ -1,11 +1,19 @@
 i = 500
 
-function creator()
-    i = 0
+function add(x, y)
+    x + y
 
-    function get_i()
-        i
+function partial_add(x)
+    function add_part(y)
+        x + y
+    add_part
 
-    get_i
+p1 = partial_add(1)
+a = p1(2)
+b = p1(4)
+p2 = partial_add(37)
+c = p2(19)
 
-a = creator()()
+lang.assert(a == 3)
+lang.assert(b == 5)
+lang.assert(c == 56)

@@ -86,7 +86,6 @@ class FunctionTestCase(unittest.TestCase):
 
     def testFunctionScope(self):
         result, scope = test_helper.execute_file('function_scope')
-        self.assertEqual(result, 0)
 
 
 class ObjectTestCase(unittest.TestCase):
