@@ -1,5 +1,5 @@
 from ..runtime.scope import Scope
-from ..runtime.function import FunctionReturnType
+from ..runtime.function import PvlFunction, FunctionReturnType
 from ..runtime import utils as runtime_utils
 
 
@@ -188,14 +188,12 @@ class ForStruct(AbstractSyntaxNode):
         return result
 
 
-class FunctionStruct(AbstractSyntaxNode):
+class FunctionStruct(AbstractSyntaxNode, PvlFunction):
     def execute(self, scope):
         if self.name:
             name = create(self.name).name
         else:
             name = None
-        params = self.params
-        body = self.body
         self.defined_scope = scope
 
         if name:
@@ -252,7 +250,12 @@ class FunctionCall(AbstractSyntaxNode):
             for param in self.params
         ]
 
-        return function_object.call(scope, None, executed_params)
+        return runtime_utils.call_function(
+            scope=scope,
+            func=function_object,
+            this_object=None,
+            params=executed_params,
+        )
 
 
 class MemberFunctionCall(AbstractSyntaxNode):
@@ -268,7 +271,12 @@ class MemberFunctionCall(AbstractSyntaxNode):
             for param in self.params
         ]
 
-        return function_object.call(scope, this_object, params)
+        return runtime_utils.call_function(
+            scope=scope,
+            func=function_object,
+            this_object=this_object,
+            params=params,
+        )
 
 
 def create(parse_tree):
