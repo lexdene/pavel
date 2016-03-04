@@ -1,4 +1,3 @@
-from enum import Enum
 from ply import lex
 
 from ..common.data_structs import Stack

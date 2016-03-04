@@ -1,5 +1,4 @@
 import unittest
-import pavel
 
 from . import test_helper
 

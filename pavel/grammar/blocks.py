@@ -1,3 +1,6 @@
+from collections import OrderedDict
+
+
 class Env:
     def __init__(self):
         self.this_object = None
@@ -36,8 +39,13 @@ class Scope:
         return result
 
 
+def _find_by_name(arguments, name):
+    pass
+
+
 class Function:
     def __init__(self):
+        self.name = None
         self.defined_arguments = []
         self.scope = None
 
@@ -49,7 +57,7 @@ class Function:
         for index, def_arg in enumerate(self.defined_arguments):
             name, default_expression = def_arg
 
-            found, found_value = find_by_name(arguments, name)
+            found, found_value = _find_by_name(arguments, name)
             if found:
                 value = found_value
             elif index >= len(arguments):
