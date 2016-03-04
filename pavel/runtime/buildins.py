@@ -55,7 +55,7 @@ object_class = object.PvlClass(
 
 
 @native_function
-def range(scope, this_object, params):
+def pvl_range(scope, this_object, params):
     return _RangeGenerator(params[0])
 
 
@@ -74,8 +74,6 @@ class _RangeGenerator:
 
 @native_function
 def delegator_constructor(scope, this_object, params):
-    block = params[0]
-
     data = params[0].call(
         scope,
         this_object,
@@ -150,11 +148,16 @@ def pvl_super(scope, this_object, params, **kwargs):
     return result
 
 
+def pvl_assert(condition, message=None):
+    assert condition, message
+
+
 buildins = dict(
-    lang=dict(
-        object=object_constructor,
-        range=range,
-        delegator=delegator_constructor,
-        super=pvl_super,
-    )
+    lang={
+        'object': object_constructor,
+        'range': pvl_range,
+        'delegator': delegator_constructor,
+        'super': pvl_super,
+        'assert': pvl_assert,
+    }
 )
