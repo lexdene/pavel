@@ -1,5 +1,5 @@
 import os
-import pavel
+import pavel.executer
 
 DIRPATH = os.path.normpath(
     os.path.join(__file__, '../../examples')
@@ -18,4 +18,4 @@ def execute_file(name):
         DIRPATH,
         name + '.pvl'
     )
-    return pavel.execute_code(_file_content(path))
+    return pavel.executer.execute_code(_file_content(path))
