@@ -236,7 +236,7 @@ class Parser:
         '''
             number : NUMBER
         '''
-        p[0] = ('number', p[1])
+        p[0] = ('number', dict(number=p[1]))
 
     def p_keyword(self, p):
         '''
@@ -253,7 +253,7 @@ class Parser:
         '''
             string : STRING
         '''
-        p[0] = ('string', p[1])
+        p[0] = ('string', dict(string=p[1][1:-1]))
 
     def p_if_struct(self, p):
         '''

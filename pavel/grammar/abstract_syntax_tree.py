@@ -8,8 +8,8 @@ class AbstractSyntaxNode:
         self._node_name = parse_tree[0]
         self._data = parse_tree[1]
 
-    def __getattr__(self, name):
-        return self._data[name]
+        for key, value in parse_tree[1].items():
+            setattr(self, key, value)
 
 
 class MultiLines(AbstractSyntaxNode):
@@ -29,12 +29,12 @@ class Expression(AbstractSyntaxNode):
 
 class Number(AbstractSyntaxNode):
     def execute(self, scope):
-        return int(self._data)
+        return int(self.number)
 
 
 class String(AbstractSyntaxNode):
     def execute(self, scope):
-        return self._data[1:-1]
+        return self.string
 
 
 class Operator(AbstractSyntaxNode):
@@ -53,10 +53,8 @@ class Operator(AbstractSyntaxNode):
     }
 
     def __new__(cls, parse_tree):
-        name = cls.OPERATOR_NAME_MAP.get(parse_tree[1], parse_tree[1])
-        class_name = 'Operator' + name.title().replace('_', '')
-        operator_class = globals()[class_name]
-        return operator_class(parse_tree)
+        name = 'operator_' + cls.OPERATOR_NAME_MAP.get(parse_tree[1], parse_tree[1])
+        return create((name, dict()))
 
 
 class OperatorAdd(AbstractSyntaxNode):
@@ -124,7 +122,6 @@ class OperatorSetAttr(AbstractSyntaxNode):
 
 class OperatorItem(AbstractSyntaxNode):
     def execute(self, scope, args):
-        print('operator item:', args)
         object_item = create(args[0]).execute(scope)
         attr_name = create(args[1]).execute(scope)
         return runtime_utils.get_attr(scope, object_item, attr_name)
