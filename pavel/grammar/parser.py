@@ -17,22 +17,18 @@ class Parser:
     def parse(self, source):
         if self._debug:
             self._debug_parse_tokens(source)
-            self.__parser = yacc.yacc(module=self)
 
-            debug = 0
-        else:
-            self.__parser = yacc.yacc(
-                module=self,
-                debug=False,
-                write_tables=False
-            )
-
-            debug = 0
+        self.__parser = yacc.yacc(
+            module=self,
+            outputdir='/tmp/',
+            debug=self._debug,
+            write_tables=self._debug,
+        )
 
         result = self.__parser.parse(
             source,
             lexer=self._create_lexer(),
-            debug=debug
+            debug=self._debug,
         )
 
         if self._debug:
