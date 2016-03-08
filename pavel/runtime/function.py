@@ -10,12 +10,7 @@ class FunctionReturnType(Enum):
     RETURN_LIST_BY_LINES = 4
 
 
-class PvlFunction(object.PvlObject):
-    def call(self):
-        pass
-
-
-class NativeFunction(PvlFunction):
+class NativeFunction(object.PvlObject):
     '''
         native means function written in Python
     '''
