@@ -1,5 +1,6 @@
 from ..runtime.scope import Scope
-from ..runtime.function import PvlFunction, FunctionReturnType
+from ..runtime.object import PvlObject
+from ..runtime.function import FunctionReturnType
 from ..runtime import utils as runtime_utils
 
 
@@ -185,7 +186,7 @@ class ForStruct(AbstractSyntaxNode):
         return result
 
 
-class FunctionStruct(AbstractSyntaxNode, PvlFunction):
+class FunctionStruct(AbstractSyntaxNode, PvlObject):
     def execute(self, scope):
         if self.name:
             name = create(self.name).name
